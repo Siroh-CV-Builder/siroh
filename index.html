@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siroh | Premium AI CV Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #020617; color: #f8fafc; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .gradient-text { background: linear-gradient(90deg, #22d3ee, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        #cv-paper { 
+            font-family: "Times New Roman", Times, serif !important; 
+            color: #1a1a1a;
+            line-height: 1.6;
+            background-color: white;
+        }
+        
+        .cv-body-text { font-size: 14pt !important; }
+        .section-title { font-size: 11pt; border-bottom: 1.5pt solid #1a1a1a; margin-bottom: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #cv-paper, #cv-paper * { visibility: visible; }
+            #cv-paper { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none !important; }
+        }
+
+        /* Custom scrollbar for a pro look */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="sticky top-0 z-50 bg-[#020617]/90 backdrop-blur-md p-4 border-b border-slate-800">
+        <div class="flex justify-between items-center max-w-7xl mx-auto">
+            <div class="text-2xl font-black tracking-tighter text-white uppercase">SIROH<span class="text-cyan-400">.</span></div>
+            
+            <div class="hidden lg:flex items-center gap-6 text-[10px] font-mono text-slate-400">
+                <a href="mailto:edwinsiro60@gmail.com" class="hover:text-cyan-400 transition flex items-center gap-2">
+                    <i class="fas fa-envelope text-cyan-500"></i> edwinsiro60@gmail.com
+                </a>
+                <a href="tel:+254745811285" class="hover:text-cyan-400 transition flex items-center gap-2">
+                    <i class="fas fa-phone text-cyan-500"></i> +254 745 811 285
+                </a>
+            </div>
+
+            <button onclick="window.print()" class="bg-cyan-500 text-slate-950 px-6 py-2 rounded-full font-bold text-sm hover:bg-cyan-400 transition">Download PDF</button>
+        </div>
+    </nav>
+
+    <section class="py-10 px-6 max-w-7xl mx-auto grid lg:grid-cols-2 gap-10">
+        
+        <div class="space-y-6 overflow-y-auto max-h-[85vh] pr-2 custom-scrollbar">
+            <div class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl">
+                <h3 class="text-cyan-400 font-bold mb-6 flex items-center gap-2">
+                    <i class="fas fa-user-tie"></i> Candidate Profile
+                </h3>
+                
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="nameIn" placeholder="Full Name" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 outline-none w-full">
+                        <input type="text" id="roleIn" placeholder="Target Role" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 outline-none w-full">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="emailIn" placeholder="Your Email" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 outline-none w-full">
+                        <input type="text" id="phoneIn" placeholder="Your Phone" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 outline-none w-full">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl">
+                <h3 class="text-cyan-400 font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-briefcase"></i> Experience
+                </h3>
+                <div id="experienceList" class="space-y-4"></div>
+                <button onclick="addJob()" class="mt-4 w-full border border-dashed border-slate-700 p-3 rounded-xl text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition text-sm">
+                    + Add New Position
+                </button>
+            </div>
+        </div>
+
+        <div class="relative">
+            <div id="cv-paper" class="sticky top-24 shadow-2xl p-16 aspect-[1/1.41] flex flex-col mx-auto overflow-hidden">
+                <div class="text-center mb-6">
+                    <h1 id="nameOut" class="text-4xl font-bold uppercase tracking-widest mb-1">Your Name</h1>
+                    <p id="roleOut" class="text-lg italic font-serif mb-3">Professional Title</p>
+                    <div id="contactOut" class="text-[10pt] border-t border-b border-black py-1 flex justify-center gap-4 italic">
+                        <span id="emailOut">email@example.com</span> | <span id="phoneOut">+000 000 000</span>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <section>
+                        <div class="section-title">Professional Experience</div>
+                        <div id="expOut" class="cv-body-text space-y-4">
+                            </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-slate-900/50 py-12 border-t border-slate-800 mt-20">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <h2 class="text-2xl font-black mb-4">SIROH<span class="text-cyan-400">.</span></h2>
+            <p class="text-slate-500 mb-6">For business inquiries or technical support, contact the developer:</p>
+            <div class="flex flex-wrap justify-center gap-8">
+                <a href="mailto:edwinsiro60@gmail.com" class="group">
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Email Inquiry</p>
+                    <p class="text-white group-hover:text-cyan-400 transition">edwinsiro60@gmail.com</p>
+                </a>
+                <a href="tel:+254745811285" class="group">
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Direct Call/WhatsApp</p>
+                    <p class="text-white group-hover:text-cyan-400 transition">+254 745 811 285</p>
+                </a>
+            </div>
+            <p class="mt-12 text-[10px] text-slate-600 uppercase tracking-tighter">© 2026 Siroh Intelligence. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // SYNC FUNCTIONS
+        const sync = (inId, outId, def) => {
+            document.getElementById(inId).addEventListener('input', (e) => {
+                document.getElementById(outId).innerText = e.target.value || def;
+            });
+        };
+
+        sync('nameIn', 'nameOut', 'Your Name');
+        sync('roleIn', 'roleOut', 'Professional Title');
+        sync('emailIn', 'emailOut', 'email@example.com');
+        sync('phoneIn', 'phoneOut', '+000 000 000');
+
+        // EXPERIENCE LOGIC
+        function addJob() {
+            const id = Date.now();
+            const html = `
+                <div id="job-${id}" class="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2 relative group">
+                    <button onclick="document.getElementById('job-${id}').remove(); updateCV();" class="absolute top-2 right-2 text-slate-600 hover:text-red-400">×</button>
+                    <input type="text" oninput="updateCV()" class="job-comp w-full bg-transparent border-b border-slate-800 p-1 text-white text-sm outline-none" placeholder="Company Name">
+                    <input type="text" oninput="updateCV()" class="job-role w-full bg-transparent border-b border-slate-800 p-1 text-cyan-400 text-[10px] outline-none" placeholder="Role">
+                    <textarea oninput="updateCV()" class="job-desc w-full bg-transparent p-1 text-slate-400 text-xs outline-none" rows="3" placeholder="Key Achievements..."></textarea>
+                </div>
+            `;
+            document.getElementById('experienceList').insertAdjacentHTML('beforeend', html);
+        }
+
+        function updateCV() {
+            const container = document.getElementById('expOut');
+            container.innerHTML = '';
+            document.querySelectorAll('#experienceList > div').forEach(job => {
+                const comp = job.querySelector('.job-comp').value;
+                const role = job.querySelector('.job-role').value;
+                const desc = job.querySelector('.job-desc').value;
+                if(comp || role || desc) {
+                    container.innerHTML += `
+                        <div class="mb-4">
+                            <div class="flex justify-between font-bold text-base"><span>${comp || 'Company'}</span></div>
+                            <div class="italic text-sm text-slate-600 mb-1">${role || 'Role'}</div>
+                            <div class="whitespace-pre-line text-justify text-sm">${desc || ''}</div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        window.onload = addJob;
+    </script>
+</body>
+</html>
