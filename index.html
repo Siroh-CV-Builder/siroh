@@ -3,171 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siroh | Premium AI CV Builder</title>
+    <title>Siroh | AI CV Builder</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #020617; color: #f8fafc; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
-        .gradient-text { background: linear-gradient(90deg, #22d3ee, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #020617; color: white; transition: all 0.3s ease; }
+        .cv-paper { background: white; color: #1e293b; min-height: 29.7cm; width: 21cm; padding: 2cm; box-shadow: 0 0 20px rgba(0,0,0,0.5); margin: 0 auto; }
         
-        #cv-paper { 
-            font-family: "Times New Roman", Times, serif !important; 
-            color: #1a1a1a;
-            line-height: 1.6;
-            background-color: white;
-        }
-        
-        .cv-body-text { font-size: 14pt !important; }
-        .section-title { font-size: 11pt; border-bottom: 1.5pt solid #1a1a1a; margin-bottom: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        /* Dynamic Theme Classes */
+        .theme-cyan { --primary: #22d3ee; --primary-dark: #0891b2; }
+        .theme-gold { --primary: #fbbf24; --primary-dark: #d97706; }
+        .theme-green { --primary: #4ade80; --primary-dark: #16a34a; }
+        .theme-rose { --primary: #fb7185; --primary-dark: #e11d48; }
 
+        .text-theme { color: var(--primary); }
+        .bg-theme { background-color: var(--primary); }
+        .border-theme { border-color: var(--primary); }
+        
         @media print {
-            body * { visibility: hidden; }
-            #cv-paper, #cv-paper * { visibility: visible; }
-            #cv-paper { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none !important; }
+            body * { visibility: hidden; background: white !important; }
+            #cv-paper-preview, #cv-paper-preview * { visibility: visible; }
+            #cv-paper-preview { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; }
         }
-
-        /* Custom scrollbar for a pro look */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
-<body class="antialiased">
+<body class="theme-cyan p-4 md:p-8">
 
-    <nav class="sticky top-0 z-50 bg-[#020617]/90 backdrop-blur-md p-4 border-b border-slate-800">
-        <div class="flex justify-between items-center max-w-7xl mx-auto">
-            <div class="text-2xl font-black tracking-tighter text-white uppercase">SIROH<span class="text-cyan-400">.</span></div>
-            
-            <div class="hidden lg:flex items-center gap-6 text-[10px] font-mono text-slate-400">
-                <a href="mailto:edwinsiro60@gmail.com" class="hover:text-cyan-400 transition flex items-center gap-2">
-                    <i class="fas fa-envelope text-cyan-500"></i> edwinsiro60@gmail.com
-                </a>
-                <a href="tel:+254745811285" class="hover:text-cyan-400 transition flex items-center gap-2">
-                    <i class="fas fa-phone text-cyan-500"></i> +254 745 811 285
-                </a>
-            </div>
-
-            <button onclick="window.print()" class="bg-cyan-500 text-slate-950 px-6 py-2 rounded-full font-bold text-sm hover:bg-cyan-400 transition">Download PDF</button>
-        </div>
-    </nav>
-
-    <section class="py-10 px-6 max-w-7xl mx-auto grid lg:grid-cols-2 gap-10">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
         
-        <div class="space-y-6 overflow-y-auto max-h-[85vh] pr-2 custom-scrollbar">
-            <div class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl">
-                <h3 class="text-cyan-400 font-bold mb-6 flex items-center gap-2">
-                    <i class="fas fa-user-tie"></i> Candidate Profile
-                </h3>
-                
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="nameIn" placeholder="Full Name" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 outline-none w-full">
-                        <input type="text" id="roleIn" placeholder="Target Role" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 outline-none w-full">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="emailIn" placeholder="Your Email" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 outline-none w-full">
-                        <input type="text" id="phoneIn" placeholder="Your Phone" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 outline-none w-full">
-                    </div>
+        <div class="space-y-6">
+            <header class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-4xl font-bold text-theme">SIROH AI</h1>
+                    <p class="text-slate-400 text-xs">Professional CV Engine v1.5</p>
+                </div>
+                <div class="flex gap-2 bg-slate-900 p-2 rounded-full border border-slate-800">
+                    <button onclick="setTheme('theme-cyan')" class="size-5 rounded-full bg-cyan-400"></button>
+                    <button onclick="setTheme('theme-gold')" class="size-5 rounded-full bg-amber-400"></button>
+                    <button onclick="setTheme('theme-green')" class="size-5 rounded-full bg-green-400"></button>
+                    <button onclick="setTheme('theme-rose')" class="size-5 rounded-full bg-rose-400"></button>
+                </div>
+            </header>
+
+            <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-xl">
+                <h3 class="text-theme font-bold mb-3 text-xs uppercase tracking-widest"><i class="fas fa-bullseye mr-2"></i>Target Job Description</h3>
+                <textarea id="targetJob" oninput="updateATSScore()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-300 text-xs outline-none focus:border-theme transition" rows="4" placeholder="Paste the job requirements here..."></textarea>
+            </div>
+
+            <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-xl space-y-3">
+                <input type="text" id="userName" oninput="renderCV()" placeholder="Full Name" class="w-full bg-transparent border-b border-slate-800 p-2 outline-none focus:border-theme transition">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="userEmail" oninput="renderCV()" placeholder="Email" class="bg-transparent border-b border-slate-800 p-2 text-xs outline-none focus:border-theme">
+                    <input type="text" id="userPhone" oninput="renderCV()" placeholder="Phone" class="bg-transparent border-b border-slate-800 p-2 text-xs outline-none focus:border-theme">
                 </div>
             </div>
 
-            <div class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl">
-                <h3 class="text-cyan-400 font-bold mb-4 flex items-center gap-2">
-                    <i class="fas fa-briefcase"></i> Experience
-                </h3>
-                <div id="experienceList" class="space-y-4"></div>
-                <button onclick="addJob()" class="mt-4 w-full border border-dashed border-slate-700 p-3 rounded-xl text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition text-sm">
-                    + Add New Position
-                </button>
-            </div>
-        </div>
-
-        <div class="relative">
-            <div id="cv-paper" class="sticky top-24 shadow-2xl p-16 aspect-[1/1.41] flex flex-col mx-auto overflow-hidden">
-                <div class="text-center mb-6">
-                    <h1 id="nameOut" class="text-4xl font-bold uppercase tracking-widest mb-1">Your Name</h1>
-                    <p id="roleOut" class="text-lg italic font-serif mb-3">Professional Title</p>
-                    <div id="contactOut" class="text-[10pt] border-t border-b border-black py-1 flex justify-center gap-4 italic">
-                        <span id="emailOut">email@example.com</span> | <span id="phoneOut">+000 000 000</span>
-                    </div>
-                </div>
-
-                <div class="space-y-6">
-                    <section>
-                        <div class="section-title">Professional Experience</div>
-                        <div id="expOut" class="cv-body-text space-y-4">
-                            </div>
-                    </section>
+            <div class="bg-slate-900/50 p-6 rounded-3xl border border-slate-800">
+                <p class="text-[10px] text-slate-500 uppercase font-bold mb-4">Add Modular Sections</p>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="addSection('Professional Summary', 'Write a short intro...')" class="px-4 py-2 bg-slate-800 hover:bg-theme hover:text-slate-950 rounded-full text-xs transition">+ Summary</button>
+                    <button onclick="addSection('Work Experience', 'Job details...')" class="px-4 py-2 bg-slate-800 hover:bg-theme hover:text-slate-950 rounded-full text-xs transition">+ Experience</button>
+                    <button onclick="addSection('Key Skills', 'List skills...')" class="px-4 py-2 bg-slate-800 hover:bg-theme hover:text-slate-950 rounded-full text-xs transition">+ Skills</button>
+                    <button onclick="addSection('Education', 'Schools...')" class="px-4 py-2 bg-slate-800 hover:bg-theme hover:text-slate-950 rounded-full text-xs transition">+ Education</button>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <footer class="bg-slate-900/50 py-12 border-t border-slate-800 mt-20">
-        <div class="max-w-7xl mx-auto px-6 text-center">
-            <h2 class="text-2xl font-black mb-4">SIROH<span class="text-cyan-400">.</span></h2>
-            <p class="text-slate-500 mb-6">For business inquiries or technical support, contact the developer:</p>
-            <div class="flex flex-wrap justify-center gap-8">
-                <a href="mailto:edwinsiro60@gmail.com" class="group">
-                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Email Inquiry</p>
-                    <p class="text-white group-hover:text-cyan-400 transition">edwinsiro60@gmail.com</p>
-                </a>
-                <a href="tel:+254745811285" class="group">
-                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Direct Call/WhatsApp</p>
-                    <p class="text-white group-hover:text-cyan-400 transition">+254 745 811 285</p>
-                </a>
-            </div>
-            <p class="mt-12 text-[10px] text-slate-600 uppercase tracking-tighter">© 2026 Siroh Intelligence. All rights reserved.</p>
+            <div id="sectionContainer" class="space-y-4"></div>
         </div>
-    </footer>
+
+        <div class="flex flex-col items-center">
+            <div class="w-full max-w-[21cm] mb-6 p-6 bg-slate-900 rounded-3xl border border-slate-800 flex items-center gap-6">
+                <div class="relative size-20">
+                    <svg class="size-full -rotate-90" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="16" fill="none" class="stroke-current text-slate-800" stroke-width="3"></circle>
+                        <circle id="scoreCircle" cx="18" cy="18" r="16" fill="none" class="stroke-current text-theme" stroke-width="3" stroke-dasharray="100" stroke-dashoffset="100" stroke-linecap="round" style="transition: stroke-dashoffset 0.5s ease;"></circle>
+                    </svg>
+                    <div class="absolute top-1/2 start-1/2 -translate-y-1/2 -translate-x-1/2 text-xl font-bold" id="scoreText">0</div>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold text-sm tracking-tight">ATS MATCH SCORE</h4>
+                    <p id="matchStatus" class="text-slate-400 text-xs">Ready for optimization...</p>
+                </div>
+                <button onclick="window.print()" class="ml-auto bg-theme text-slate-950 px-6 py-2 rounded-full font-bold text-xs hover:bg-white transition">DOWNLOAD PDF</button>
+            </div>
+
+            <div id="cv-paper-preview" class="cv-paper rounded-sm"></div>
+        </div>
+    </div>
 
     <script>
-        // SYNC FUNCTIONS
-        const sync = (inId, outId, def) => {
-            document.getElementById(inId).addEventListener('input', (e) => {
-                document.getElementById(outId).innerText = e.target.value || def;
-            });
+        const API_KEY = "YOUR_API_KEY_HERE";
+
+        function setTheme(themeName) {
+            document.body.className = themeName + " p-4 md:p-8";
+            renderCV();
+        }
+
+        const PROMPTS = {
+            "Professional Summary": (text, job) => `Write a 2-line summary based on: "${text}". Target Job: ${job}. Impactful language only.`,
+            "Work Experience": (text, job) => `Rewrite as achievement-based bullet points: "${text}". Align with: ${job}.`,
+            "Key Skills": (text, job) => `List optimized skills for this job: ${job}. Input: ${text}.`
         };
 
-        sync('nameIn', 'nameOut', 'Your Name');
-        sync('roleIn', 'roleOut', 'Professional Title');
-        sync('emailIn', 'emailOut', 'email@example.com');
-        sync('phoneIn', 'phoneOut', '+000 000 000');
-
-        // EXPERIENCE LOGIC
-        function addJob() {
-            const id = Date.now();
+        function addSection(type, placeholder) {
+            const id = "sec-" + Date.now();
             const html = `
-                <div id="job-${id}" class="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2 relative group">
-                    <button onclick="document.getElementById('job-${id}').remove(); updateCV();" class="absolute top-2 right-2 text-slate-600 hover:text-red-400">×</button>
-                    <input type="text" oninput="updateCV()" class="job-comp w-full bg-transparent border-b border-slate-800 p-1 text-white text-sm outline-none" placeholder="Company Name">
-                    <input type="text" oninput="updateCV()" class="job-role w-full bg-transparent border-b border-slate-800 p-1 text-cyan-400 text-[10px] outline-none" placeholder="Role">
-                    <textarea oninput="updateCV()" class="job-desc w-full bg-transparent p-1 text-slate-400 text-xs outline-none" rows="3" placeholder="Key Achievements..."></textarea>
+                <div id="${id}" class="bg-slate-900 border border-slate-800 p-5 rounded-2xl animate-fade-in">
+                    <div class="flex justify-between items-center mb-3">
+                        <input type="text" value="${type}" oninput="renderCV()" class="bg-transparent text-theme font-bold text-xs outline-none w-full">
+                        <button onclick="document.getElementById('${id}').remove(); renderCV();" class="text-slate-600 hover:text-red-400 ml-2">×</button>
+                    </div>
+                    <div class="relative">
+                        <textarea oninput="renderCV(); updateATSScore();" class="content-input w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-300 text-[11px] outline-none focus:border-theme min-h-[80px]" placeholder="${placeholder}"></textarea>
+                        <button onclick="polishAI('${id}', '${type}')" class="absolute bottom-2 right-2 bg-slate-800 text-theme px-3 py-1 rounded-full text-[9px] border border-slate-700 hover:bg-theme hover:text-slate-950 transition">
+                            <i class="fas fa-wand-magic-sparkles mr-1"></i> AI Polish
+                        </button>
+                    </div>
                 </div>
             `;
-            document.getElementById('experienceList').insertAdjacentHTML('beforeend', html);
+            document.getElementById('sectionContainer').insertAdjacentHTML('beforeend', html);
         }
 
-        function updateCV() {
-            const container = document.getElementById('expOut');
-            container.innerHTML = '';
-            document.querySelectorAll('#experienceList > div').forEach(job => {
-                const comp = job.querySelector('.job-comp').value;
-                const role = job.querySelector('.job-role').value;
-                const desc = job.querySelector('.job-desc').value;
-                if(comp || role || desc) {
-                    container.innerHTML += `
-                        <div class="mb-4">
-                            <div class="flex justify-between font-bold text-base"><span>${comp || 'Company'}</span></div>
-                            <div class="italic text-sm text-slate-600 mb-1">${role || 'Role'}</div>
-                            <div class="whitespace-pre-line text-justify text-sm">${desc || ''}</div>
-                        </div>
-                    `;
+        async function polishAI(id, type) {
+            const textArea = document.querySelector(`#${id} textarea`);
+            const jobDesc = document.getElementById('targetJob').value;
+            const btn = event.currentTarget;
+
+            if (!textArea.value || !jobDesc) return alert("Fill content and job description first!");
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            const prompt = PROMPTS[type] ? PROMPTS[type](textArea.value, jobDesc) : `Improve: ${textArea.value}`;
+
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                    method: "POST", headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                const data = await res.json();
+                textArea.value = data.candidates[0].content.parts[0].text.trim();
+                renderCV(); updateATSScore();
+            } catch (e) { alert("API Error."); }
+            btn.innerHTML = '<i class="fas fa-wand-magic-sparkles mr-1"></i> AI Polish';
+        }
+
+        function renderCV() {
+            const paper = document.getElementById('cv-paper-preview');
+            const color = getComputedStyle(document.body).getPropertyValue('--primary');
+            
+            let sectionsHtml = "";
+            document.querySelectorAll('#sectionContainer > div').forEach(div => {
+                const title = div.querySelector('input').value;
+                const content = div.querySelector('textarea').value;
+                if (content) {
+                    sectionsHtml += `<div class="mb-6">
+                        <h3 class="text-[11pt] font-bold border-b-2 border-slate-300 uppercase mb-2" style="color: ${color}; border-color: ${color}">${title}</h3>
+                        <p class="text-[10pt] text-slate-700 whitespace-pre-line leading-relaxed">${content}</p>
+                    </div>`;
                 }
             });
+
+            paper.innerHTML = `
+                <div class="text-center mb-8">
+                    <h1 class="text-4xl font-bold uppercase" style="color: ${color}">${document.getElementById('userName').value || 'YOUR NAME'}</h1>
+                    <p class="text-[10pt] text-slate-500 mt-2 italic">${document.getElementById('userEmail').value} | ${document.getElementById('userPhone').value}</p>
+                </div>
+                ${sectionsHtml}
+            `;
         }
 
-        window.onload = addJob;
+        function updateATSScore() {
+            const jobDesc = document.getElementById('targetJob').value.toLowerCase();
+            let cvText = "";
+            document.querySelectorAll('.content-input').forEach(i => cvText += i.value.toLowerCase());
+            if (!jobDesc || !cvText) return;
+            let score = Math.floor(Math.random() * 30) + 40; // Simulated logic
+            document.getElementById('scoreCircle').style.strokeDashoffset = 100 - score;
+            document.getElementById('scoreText').innerText = score;
+        }
     </script>
 </body>
 </html>
