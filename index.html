@@ -1,292 +1,240 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siroh Pro | Elite Career Engine</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Playfair+Display:wght@700&family=JetBrains+Mono&display=swap');
-        
-        :root { --primary: #10b981; --dark: #020617; }
-        
-        /* Global Typography Correction */
-        body { 
-            background-color: var(--dark); 
-            color: #f1f5f9; 
-            font-family: 'Inter', sans-serif; 
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* Clean Sectioning */
-        .glass-card { 
-            background: rgba(15, 23, 42, 0.6); 
-            backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255,255,255,0.08); 
-            border-radius: 1.5rem;
-        }
-
-        .page-section { display: none; padding: 2rem 0; }
-        .page-section.active { display: block; animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* CV Preview Scaling Fix */
-        .cv-container {
-            perspective: 1000px;
-            height: 800px;
-            overflow-y: auto;
-            border-radius: 1rem;
-            background: #1e293b;
-            padding: 2rem;
-        }
-
-        .cv-paper { 
-            background: white; 
-            color: #1e293b; 
-            width: 210mm; /* A4 Width */
-            min-height: 297mm; /* A4 Height */
-            padding: 20mm; 
-            margin: 0 auto; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            transform: scale(0.65); /* Adjusted for better visibility */
-            transform-origin: top center;
-        }
-
-        /* CV Style Overlays */
-        .style-executive { font-family: 'Playfair Display', serif; border-top: 12px solid #0f172a; }
-        .style-tech { font-family: 'JetBrains Mono', monospace; border: 2px solid #10b981; }
-        .style-modern { border-left: 10px solid #10b981; }
-
-        .btn-primary {
-            background: var(--primary);
-            color: #020617;
-            font-weight: 700;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-        }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2); }
-
-        /* M-Pesa Branding */
-        .mpesa-green { background: #3fb04e; color: white; }
-
-        @media print { .no-print { display: none !important; } .cv-paper { transform: scale(1) !important; margin: 0; box-shadow: none; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Siroh Pro CV Builder</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.6.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+body { font-family: 'Inter', sans-serif; background:#020617; color:#f1f5f9; }
+.glass-card { background: rgba(15,23,42,0.6); backdrop-filter: blur(12px); border-radius:1rem; padding:1rem; margin-bottom:1rem;}
+.cv-paper { background:white; color:#1e293b; padding:20mm; min-height:297mm; width:210mm; transform:scale(0.65); transform-origin:top center; transition:0.3s;}
+.page-section { display:none; padding:2rem 0; }
+.page-section.active { display:block; animation: fadeIn 0.5s ease-out;}
+@keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+.btn-primary { background:#10b981; color:#020617; font-weight:700; padding:0.75rem 1.5rem; border-radius:0.75rem; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.05em;}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 10px 20px rgba(16,185,129,0.2);}
+#keyword-heatmap { max-height:200px; overflow:auto;}
+@media print{ .no-print{display:none!important;} .cv-paper{transform:scale(1)!important;margin:0;box-shadow:none;} }
+</style>
 </head>
 <body>
 
-    <nav class="max-w-7xl mx-auto px-6 py-8 flex justify-between items-center no-print">
-        <div class="flex items-center gap-3">
-            <div class="bg-emerald-500 p-2 rounded-lg"><i class="fas fa-shield-bolt text-slate-900"></i></div>
-            <span class="text-xl font-bold tracking-tight uppercase">Siroh <span class="text-emerald-500">Pro</span></span>
-        </div>
-        <div class="flex items-center gap-8 text-[11px] font-bold uppercase tracking-widest">
-            <button onclick="showPage('page-landing')" class="hover:text-emerald-500">Home</button>
-            <button onclick="showPage('page-work')" class="hover:text-emerald-500">Gallery</button>
-            <button onclick="showPage('page-admin')" class="text-slate-500">HQ</button>
-            <button onclick="showPage('page-builder')" class="btn-primary">Build CV</button>
-        </div>
-    </nav>
+<!-- Navbar -->
+<nav class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center no-print">
+  <span class="text-xl font-bold">Siroh <span class="text-emerald-500">Pro</span></span>
+  <div class="flex gap-4">
+    <button onclick="showPage('builder')" class="btn-primary">Build CV</button>
+    <button onclick="showPage('analytics')" class="btn-primary">Analytics</button>
+  </div>
+</nav>
 
-    <section id="page-landing" class="page-section active max-w-7xl mx-auto px-6">
-        <div class="grid lg:grid-cols-2 gap-16 items-center pt-12">
-            <div>
-                <h1 class="text-5xl lg:text-7xl font-extrabold leading-[1.1] mb-6">
-                    Engineering <br><span class="text-emerald-500 italic">Top 1%</span> Careers.
-                </h1>
-                <p class="text-slate-400 text-lg mb-10 max-w-lg leading-relaxed">
-                    Automated CV design, real-time salary benchmarking, and AI-powered networking hooks for the Kenyan professional.
-                </p>
-                <div class="flex gap-4">
-                    <button onclick="showPage('page-builder')" class="btn-primary px-10 py-5 text-sm">Get Started</button>
-                    <button onclick="showPage('page-work')" class="bg-slate-900 border border-slate-700 px-10 py-5 rounded-xl text-sm font-bold uppercase">View Samples</button>
-                </div>
-            </div>
-            <div class="glass-card p-8 rotate-2">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="size-3 bg-red-500 rounded-full"></div>
-                    <div class="size-3 bg-yellow-500 rounded-full"></div>
-                    <div class="size-3 bg-green-500 rounded-full"></div>
-                </div>
-                <div class="space-y-4">
-                    <div class="h-4 bg-slate-800 rounded w-3/4"></div>
-                    <div class="h-4 bg-slate-800 rounded w-1/2"></div>
-                    <div class="h-20 bg-emerald-500/10 rounded border border-emerald-500/20"></div>
-                </div>
-            </div>
-        </div>
-    </section>
+<!-- CV Builder Page -->
+<section id="builder" class="page-section active max-w-7xl mx-auto px-6">
+<div class="grid lg:grid-cols-12 gap-8">
 
-    <section id="page-builder" class="page-section max-w-[1600px] mx-auto px-6">
-        <div class="grid lg:grid-cols-12 gap-8">
-            <div class="lg:col-span-5 space-y-6">
-                <div class="glass-card p-6 border-l-4 border-emerald-500 flex justify-between items-center">
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-500 uppercase">Est. Monthly Salary</p>
-                        <p id="salary-view" class="text-2xl font-extrabold text-white italic">KES 0.00</p>
-                    </div>
-                    <i class="fas fa-chart-line text-emerald-500 text-xl opacity-50"></i>
-                </div>
+<!-- Left Panel -->
+<div class="lg:col-span-5 space-y-4">
 
-                <div class="glass-card p-8 space-y-4">
-                    <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-emerald-500 mb-4">Input Parameters</h3>
-                    <input type="text" id="userName" placeholder="Full Name" oninput="renderCV()" class="w-full bg-slate-900/50 border border-slate-800 rounded-lg p-4 text-sm focus:border-emerald-500 outline-none transition">
-                    <input type="text" id="userLoc" placeholder="Nairobi, Kenya" oninput="renderCV()" class="w-full bg-slate-900/50 border border-slate-800 rounded-lg p-4 text-sm focus:border-emerald-500 outline-none transition">
-                    <textarea id="targetJob" onblur="updateSalary()" class="w-full bg-slate-900/50 border border-slate-800 rounded-xl p-4 text-sm h-32 outline-none focus:border-emerald-500" placeholder="Paste Job Description..."></textarea>
-                    
-                    <div class="grid grid-cols-3 gap-2">
-                        <button onclick="applyStyle('modern')" class="bg-slate-800 py-3 rounded-lg text-[9px] font-bold uppercase hover:bg-slate-700">Modern</button>
-                        <button onclick="applyStyle('executive')" class="bg-slate-800 py-3 rounded-lg text-[9px] font-bold uppercase hover:bg-slate-700">Executive</button>
-                        <button onclick="applyStyle('tech')" class="bg-slate-800 py-3 rounded-lg text-[9px] font-bold uppercase hover:bg-slate-700">Tech</button>
-                    </div>
+  <div class="glass-card">
+    <h3 class="font-bold text-sm uppercase mb-2">Contact Info</h3>
+    <input type="text" id="userName" placeholder="Full Name" oninput="renderCV()" class="w-full p-2 rounded bg-slate-900/50">
+    <input type="text" id="userLoc" placeholder="Nairobi, Kenya" oninput="renderCV()" class="w-full p-2 rounded bg-slate-900/50 mt-2">
+    <input type="text" id="userEmail" placeholder="edwinsiro60@gmail.com" oninput="renderCV()" class="w-full p-2 rounded bg-slate-900/50 mt-2">
+    <input type="text" id="userPhone" placeholder="+254745811285" oninput="renderCV()" class="w-full p-2 rounded bg-slate-900/50 mt-2">
+  </div>
 
-                    <div class="flex gap-2">
-                        <button onclick="addExp(true)" class="btn-primary w-full">AI Experience Generator</button>
-                        <button onclick="generateNetworkingHook()" class="bg-blue-600 px-4 rounded-lg"><i class="fab fa-linkedin"></i></button>
-                    </div>
-                </div>
+  <div class="glass-card">
+    <h3 class="font-bold text-sm uppercase mb-2">Professional Summary</h3>
+    <textarea id="summary" placeholder="Your elevator pitch..." oninput="renderCV()" class="w-full p-2 rounded bg-slate-900/50 h-24"></textarea>
+  </div>
 
-                <div id="expList" class="space-y-4"></div>
-            </div>
+  <div class="glass-card">
+    <h3 class="font-bold text-sm uppercase mb-2">Experience</h3>
+    <div id="expList" class="space-y-2"></div>
+    <button onclick="addExp()" class="btn-primary w-full mt-2">Add AI Experience</button>
+  </div>
 
-            <div class="lg:col-span-7">
-                <div class="sticky top-6">
-                    <div class="flex justify-between items-center mb-4 px-4">
-                        <div class="flex gap-2">
-                            <button onclick="toggleXray()" class="text-[9px] font-bold uppercase text-slate-500 border border-slate-800 px-3 py-1 rounded">ATS X-Ray</button>
-                        </div>
-                        <button onclick="triggerMpesa()" class="btn-primary bg-white text-slate-950 px-6">Download PDF</button>
-                    </div>
-                    <div class="cv-container">
-                        <div id="cv-preview" class="cv-paper style-modern"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+  <div class="glass-card">
+    <h3 class="font-bold text-sm uppercase mb-2">Mission & Vision</h3>
+    <textarea id="mission" placeholder="Company / Personal Mission..." oninput="renderCV()" class="w-full p-2 rounded bg-slate-900/50 h-20"></textarea>
+    <textarea id="vision" placeholder="Company / Personal Vision..." oninput="renderCV()" class="w-full p-2 rounded bg-slate-900/50 h-20 mt-2"></textarea>
+  </div>
 
-    <div id="mpesa-modal" class="overlay-modal fixed inset-0 z-[10000] hidden bg-slate-950/95 backdrop-blur-md items-center justify-center p-6 no-print">
-        <div class="glass-card p-10 max-w-md w-full text-center border-emerald-500/20">
-            <div class="bg-[#3fb04e] w-fit mx-auto px-6 py-2 rounded-lg text-white font-bold mb-6">M-PESA</div>
-            <h2 class="text-xl font-bold mb-2">Checkout</h2>
-            <p class="text-slate-400 text-sm mb-6">A fee of <span class="text-white font-bold">KES 250</span> is required to unlock the premium export.</p>
-            <input type="text" id="mpesa-phone" placeholder="07XX XXX XXX" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl text-center mb-4 outline-none">
-            <button onclick="simulateMpesa()" class="btn-primary w-full bg-[#3fb04e] text-white py-4">Pay & Download</button>
-            <button onclick="document.getElementById('mpesa-modal').classList.add('hidden')" class="mt-4 text-[10px] text-slate-500 uppercase font-bold">Cancel</button>
-        </div>
+  <div class="glass-card">
+    <h3 class="font-bold text-sm uppercase mb-2">Job Description / Target Role</h3>
+    <textarea id="targetJob" placeholder="Paste JD here..." onblur="updateKeywordHeatmap()" class="w-full p-2 rounded bg-slate-900/50 h-24"></textarea>
+  </div>
+
+  <div id="keyword-heatmap" class="glass-card text-xs"></div>
+
+  <div class="glass-card flex gap-2 items-center flex-wrap">
+    <button onclick="exportPDF()" class="btn-primary px-6 py-2 text-sm">Download PDF</button>
+    <label class="flex items-center gap-2 text-xs text-slate-400">
+      <input type="checkbox" id="includeQR"> Include QR Code
+    </label>
+    <label class="flex items-center gap-2 text-xs text-slate-400">
+      Template:
+      <select id="templateSelect" onchange="renderCV()" class="text-black rounded p-1">
+        <option value="modern">Modern</option>
+        <option value="executive">Executive</option>
+        <option value="tech">Tech</option>
+      </select>
+    </label>
+    <label class="flex items-center gap-2 text-xs text-slate-400">
+      Tone:
+      <select id="toneSelect" onchange="renderCV()" class="text-black rounded p-1">
+        <option value="corporate">Corporate</option>
+        <option value="creative">Creative</option>
+      </select>
+    </label>
+  </div>
+
+</div>
+
+<!-- Right Panel: CV Preview -->
+<div class="lg:col-span-7">
+  <div class="cv-container sticky top-4">
+    <div id="cv-preview" class="cv-paper"></div>
+  </div>
+</div>
+
+</div>
+</section>
+
+<!-- Analytics / Ghosting Dashboard -->
+<section id="analytics" class="page-section max-w-7xl mx-auto px-6">
+  <h2 class="text-xl font-bold mb-4">CV Analytics (Demo)</h2>
+  <div class="glass-card p-4">
+    <p>Opened: <span id="opened">0</span></p>
+    <p>Time spent reading: <span id="timeSpent">0s</span></p>
+    <p>Location: <span id="location">-</span></p>
+    <p class="text-sm text-slate-400 mt-2">*Analytics simulation for testing purposes.</p>
+  </div>
+</section>
+
+<script>
+const API_KEY = "YOUR_API_KEY_HERE";
+
+// Page switch
+function showPage(id){
+  document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// Render CV
+function renderCV(){
+  const n = document.getElementById('userName').value || "PROFESSIONAL NAME";
+  const l = document.getElementById('userLoc').value || "CITY, COUNTRY";
+  const e = document.getElementById('userEmail').value || "email@example.com";
+  const p = document.getElementById('userPhone').value || "+254000000000";
+  const s = document.getElementById('summary').value || "Your elevator pitch goes here.";
+  const m = document.getElementById('mission').value || "Mission statement...";
+  const v = document.getElementById('vision').value || "Vision statement...";
+  const template = document.getElementById('templateSelect').value;
+  const tone = document.getElementById('toneSelect').value;
+
+  // Experience
+  let c = "";
+  document.querySelectorAll('#expList textarea').forEach(t=>c+=`<div style="margin-bottom:8pt; font-size:10pt; line-height:1.4; white-space:pre-line;">${t.value}</div>`);
+
+  // Template styles
+  let cvStyle = "font-family:'Inter',sans-serif;color:#1e293b;";
+  if(template=="executive") cvStyle += "font-family:'Times New Roman',serif;";
+  if(template=="tech") cvStyle += "font-family:monospace;color:#111;";
+  
+  // Tone effect
+  let summaryStyle = tone=="creative" ? "color:#1d4ed8;font-style:italic;" : "color:#000;";
+
+  document.getElementById('cv-preview').innerHTML = `
+    <div style="${cvStyle} padding:10pt;">
+      <div style="text-align:center; border-bottom:1px solid #000; padding-bottom:10pt; margin-bottom:12pt;">
+        <h1 style="margin:0; font-size:22pt; font-weight:800;">${n.toUpperCase()}</h1>
+        <p style="font-size:10pt; font-weight:600; color:#444;">${l} | ${e} | ${p}</p>
+      </div>
+      <h2 style="font-size:11pt; text-transform:uppercase; border-bottom:1px solid #eee; margin-bottom:8pt;">Professional Summary</h2>
+      <p style="${summaryStyle}">${s}</p>
+      <h2 style="font-size:11pt; text-transform:uppercase; border-bottom:1px solid #eee; margin-bottom:8pt;">Mission & Vision</h2>
+      <p><strong>Mission:</strong> ${m}</p>
+      <p><strong>Vision:</strong> ${v}</p>
+      <h2 style="font-size:11pt; text-transform:uppercase; border-bottom:1px solid #eee; margin-bottom:8pt;">Experience</h2>${c}
     </div>
+  `;
+}
 
-    <div id="amanda-portal" class="fixed bottom-8 right-8 z-[10000] no-print">
-        <div id="chat-window" class="hidden flex-col glass-card w-80 mb-4 overflow-hidden border-emerald-500/20 shadow-2xl">
-            <div class="bg-emerald-500 p-4 flex justify-between items-center">
-                <span class="text-slate-950 font-bold text-xs uppercase italic">Amanda Strategist</span>
-                <button onclick="toggleAmanda()"><i class="fas fa-times text-slate-950"></i></button>
-            </div>
-            <div id="amanda-msgs" class="h-64 overflow-y-auto p-4 space-y-3 text-[11px] bg-slate-950/50">
-                <div class="bg-emerald-500/10 p-3 rounded-lg border border-emerald-500/20">I'm tracking your profile. Should we run a salary audit or a networking script?</div>
-            </div>
-            <div class="p-3 bg-slate-900 flex gap-2">
-                <input type="text" id="amanda-in" class="bg-slate-950 text-[10px] p-2 rounded flex-1 outline-none" placeholder="Type command...">
-                <button onclick="askAmanda()" class="bg-emerald-500 text-slate-950 px-3 rounded font-bold text-[10px]">Go</button>
-            </div>
-        </div>
-        <button onclick="toggleAmanda()" class="size-16 rounded-2xl bg-emerald-500 text-slate-950 shadow-2xl shadow-emerald-500/30 flex items-center justify-center text-2xl hover:scale-110 transition active:scale-95">
-            <i class="fas fa-headset"></i>
-        </button>
-    </div>
+// Add AI-generated experience
+async function addExp(){
+  const loc = document.getElementById('userLoc').value || "Nairobi";
+  const val = await callAI(`Generate 1 professional CV experience entry for a high-level role in ${loc}. Use metric-driven bullet points.`);
+  const id = "exp-" + Date.now();
+  document.getElementById('expList').insertAdjacentHTML('afterbegin', `<div id="${id}" class="glass-card relative"><textarea oninput="renderCV()" class="w-full bg-transparent text-slate-400 text-xs min-h-[80px] outline-none">${val}</textarea><button onclick="this.parentElement.remove(); renderCV();" class="absolute top-2 right-2 text-slate-700">×</button></div>`);
+  renderCV();
+}
 
-    <script>
-        const API_KEY = "AIzaSyDlByDWoNQsNb0pGZKQTxqPeFkhQWr6Eqw";
+// Call AI
+async function callAI(prompt){
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+    method:"POST", headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] })
+  });
+  const data = await res.json();
+  return data.candidates[0].content.parts[0].text.trim();
+}
 
-        function showPage(id) {
-            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            window.scrollTo(0,0);
-        }
+// Keyword heatmap + ATS score
+async function updateKeywordHeatmap(){
+  const cvText = document.getElementById('cv-preview').innerText;
+  const jobDesc = document.getElementById('targetJob').value;
+  if(!jobDesc) return;
+  const heatmapDiv = document.getElementById('keyword-heatmap');
+  heatmapDiv.innerHTML = "Analyzing keywords…";
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer ' + API_KEY
+      },
+      body:JSON.stringify({
+        model:"gpt-4",
+        messages:[
+          {role:"system", content:"You are an ATS expert. Highlight matched/missing keywords in HTML and calculate a score."},
+          {role:"user", content:`Compare CV: "${cvText}" with JD: "${jobDesc}". Return HTML with matched keywords green, missing keywords red, and a numeric ATS score at the top.`}
+        ],
+        temperature:0, max_tokens:700
+      })
+    });
+    const data = await res.json();
+    heatmapDiv.innerHTML = data.choices[0].message.content || "No results.";
+  } catch(e){ heatmapDiv.innerHTML = "Keyword analysis failed."; console.error(e); }
+}
 
-        function toggleAmanda() {
-            const w = document.getElementById('chat-window');
-            w.classList.toggle('hidden');
-            w.classList.toggle('flex');
-        }
+// Export PDF
+async function exportPDF(){
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ unit:'pt', format:'a4' });
+  const cvContent = document.getElementById('cv-preview').innerText.split('\n');
+  let y = 40;
+  pdf.setFont("helvetica","normal"); pdf.setFontSize(12);
+  cvContent.forEach(line=>{
+    pdf.text(line.trim(), 40, y); y+=18; if(y>780){pdf.addPage(); y=40;}
+  });
+  if(document.getElementById('includeQR').checked){
+    const qrDiv = document.createElement('div');
+    new QRCode(qrDiv, { text:"https://yourdomain.com/user-cv-link", width:100, height:100, correctLevel:QRCode.CorrectLevel.H });
+    await new Promise(resolve=>setTimeout(resolve,300));
+    const canvas = qrDiv.querySelector('canvas');
+    pdf.addImage(canvas.toDataURL("image/png"),'PNG',450,700,100,100);
+  }
+  pdf.save("My_CV.pdf");
+}
 
-        async function callAI(p) {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contents: [{ parts: [{ text: p }] }] })
-            });
-            const data = await res.json();
-            return data.candidates[0].content.parts[0].text.trim();
-        }
-
-        async function updateSalary() {
-            const jd = document.getElementById('targetJob').value;
-            if(jd.length < 50) return;
-            document.getElementById('salary-view').innerText = "Analyzing...";
-            const r = await callAI(`Analyze this JD: ${jd}. Provide only a monthly salary range in KES for Nairobi.`);
-            document.getElementById('salary-view').innerText = r;
-        }
-
-        function applyStyle(s) {
-            document.getElementById('cv-preview').className = 'cv-paper style-' + s;
-            renderCV();
-        }
-
-        function triggerMpesa() {
-            document.getElementById('mpesa-modal').classList.remove('hidden');
-            document.getElementById('mpesa-modal').classList.add('flex');
-        }
-
-        function simulateMpesa() {
-            const btn = event.target;
-            btn.innerText = "Processing STK Push...";
-            setTimeout(() => {
-                alert("Payment Confirmed! PDF Unlocked.");
-                document.getElementById('mpesa-modal').classList.add('hidden');
-                window.print();
-                btn.innerText = "Pay & Download";
-            }, 2500);
-        }
-
-        async function addExp() {
-            const loc = document.getElementById('userLoc').value || "Nairobi";
-            const val = await callAI(`Generate 1 professional CV experience entry for a high-level role in ${loc}. Use metric-driven bullet points.`);
-            const id = "exp-" + Date.now();
-            document.getElementById('expList').insertAdjacentHTML('afterbegin', `<div id="${id}" class="glass-card p-4 relative"><textarea oninput="renderCV()" class="w-full bg-transparent text-slate-400 text-xs min-h-[100px] outline-none">${val}</textarea><button onclick="this.parentElement.remove(); renderCV();" class="absolute top-2 right-2 text-slate-700">×</button></div>`);
-            renderCV();
-        }
-
-        function renderCV() {
-            const n = document.getElementById('userName').value || 'PROFESSIONAL NAME';
-            const l = document.getElementById('userLoc').value || 'CITY, COUNTRY';
-            let c = "";
-            document.querySelectorAll('#expList textarea').forEach(t => c += `<div style="margin-bottom:12pt; font-size:10pt; line-height:1.4; white-space:pre-line;">${t.value}</div>`);
-            document.getElementById('cv-preview').innerHTML = `<div style="text-align:center; border-bottom:1px solid #000; padding-bottom:10pt; margin-bottom:15pt;"><h1 style="margin:0; font-size:22pt; font-weight:800;">${n.toUpperCase()}</h1><p style="font-size:10pt; font-weight:600; color:#444;">${l}</p></div><h2 style="font-size:11pt; text-transform:uppercase; border-bottom:1px solid #eee; margin-bottom:10pt;">Experience</h2>${c}`;
-        }
-
-        async function generateNetworkingHook() {
-            const jd = document.getElementById('targetJob').value;
-            if(!jd) return alert("Paste a JD first.");
-            const r = await callAI(`Write a short LinkedIn message for this role: ${jd}. High impact.`);
-            alert("LinkedIn Strategy Generated:\n\n" + r);
-        }
-
-        let xray = false;
-        function toggleXray() {
-            xray = !xray;
-            const p = document.getElementById('cv-preview');
-            if(xray) {
-                p.style.background = "#020617"; p.style.color = "#10b981"; p.style.fontFamily = "monospace";
-                p.innerHTML = `<div style="padding:20px;">[ATS_SCAN_MODE]<br><br>${p.innerText.replace(/\n/g, '<br>> ')}</div>`;
-            } else {
-                p.style.background = "white"; p.style.color = "#1e293b"; p.style.fontFamily = "inherit"; renderCV();
-            }
-        }
-    </script>
+// Initial render
+renderCV();
+</script>
 </body>
 </html>
