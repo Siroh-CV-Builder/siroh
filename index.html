@@ -3,230 +3,289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siroh Pro | The Career Sovereign</title>
+    <title>Siroh Pro | Elite Career Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;600;800&family=Playfair+Display:wght@700&family=JetBrains+Mono&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Playfair+Display:wght@700&family=JetBrains+Mono&display=swap');
+        
         :root { --primary: #10b981; --dark: #020617; }
-        body { background-color: var(--dark); color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
         
-        .glass-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.05); }
-        .page-section { display: none; min-height: 100vh; }
-        .page-section.active { display: block; animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        
-        @keyframes reveal { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* Global Typography Correction */
+        body { 
+            background-color: var(--dark); 
+            color: #f1f5f9; 
+            font-family: 'Inter', sans-serif; 
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
 
-        /* Style DNAs */
-        .style-executive { font-family: 'Playfair Display', serif; border-top: 15px solid #0f172a; }
-        .style-tech { font-family: 'JetBrains Mono', monospace; color: #10b981 !important; background: #020617 !important; border: 1px solid #10b981; }
-        .style-modern { font-family: 'Plus Jakarta Sans', sans-serif; border-left: 12px solid #10b981; }
+        /* Clean Sectioning */
+        .glass-card { 
+            background: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255,255,255,0.08); 
+            border-radius: 1.5rem;
+        }
 
-        .cv-paper { background: white; color: #1e293b; min-height: 29.7cm; width: 21cm; padding: 1.5cm 2cm; margin: 0 auto; transform: scale(0.45); transform-origin: top center; box-shadow: 0 50px 100px rgba(0,0,0,0.6); transition: 0.3s; }
-        
-        /* Modal Overlays */
-        .overlay-modal { display:none; position:fixed; inset:0; z-index:9999; background:rgba(2, 6, 23, 0.96); backdrop-filter:blur(15px); align-items:center; justify-content:center; padding: 20px; }
-        
-        @media print { .no-print { display: none !important; } .cv-paper { transform: scale(1) !important; width: 100%; } }
+        .page-section { display: none; padding: 2rem 0; }
+        .page-section.active { display: block; animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* CV Preview Scaling Fix */
+        .cv-container {
+            perspective: 1000px;
+            height: 800px;
+            overflow-y: auto;
+            border-radius: 1rem;
+            background: #1e293b;
+            padding: 2rem;
+        }
+
+        .cv-paper { 
+            background: white; 
+            color: #1e293b; 
+            width: 210mm; /* A4 Width */
+            min-height: 297mm; /* A4 Height */
+            padding: 20mm; 
+            margin: 0 auto; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            transform: scale(0.65); /* Adjusted for better visibility */
+            transform-origin: top center;
+        }
+
+        /* CV Style Overlays */
+        .style-executive { font-family: 'Playfair Display', serif; border-top: 12px solid #0f172a; }
+        .style-tech { font-family: 'JetBrains Mono', monospace; border: 2px solid #10b981; }
+        .style-modern { border-left: 10px solid #10b981; }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #020617;
+            font-weight: 700;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2); }
+
+        /* M-Pesa Branding */
+        .mpesa-green { background: #3fb04e; color: white; }
+
+        @media print { .no-print { display: none !important; } .cv-paper { transform: scale(1) !important; margin: 0; box-shadow: none; } }
     </style>
 </head>
 <body>
 
-    <div id="hook-modal" class="overlay-modal no-print">
-        <div class="glass-card p-10 rounded-[3rem] max-w-2xl w-full border-blue-500/30">
-            <div class="flex justify-between items-center mb-8">
-                <h3 class="text-2xl font-black text-blue-400 italic underline decoration-blue-500 underline-offset-8">LinkedIn Networking Hook</h3>
-                <button onclick="document.getElementById('hook-modal').style.display='none'" class="text-slate-500 hover:text-white">&times;</button>
-            </div>
-            <p class="text-xs text-slate-400 mb-6 uppercase tracking-widest font-bold">Copy this script to message Hiring Managers:</p>
-            <div id="hook-content" class="bg-slate-950 p-6 rounded-2xl text-sm leading-relaxed text-blue-100 border border-blue-900/50 mb-8 italic">
-                Generating your battle plan...
-            </div>
-            <button onclick="copyHook()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-blue-500">Copy to Clipboard</button>
+    <nav class="max-w-7xl mx-auto px-6 py-8 flex justify-between items-center no-print">
+        <div class="flex items-center gap-3">
+            <div class="bg-emerald-500 p-2 rounded-lg"><i class="fas fa-shield-bolt text-slate-900"></i></div>
+            <span class="text-xl font-bold tracking-tight uppercase">Siroh <span class="text-emerald-500">Pro</span></span>
         </div>
-    </div>
+        <div class="flex items-center gap-8 text-[11px] font-bold uppercase tracking-widest">
+            <button onclick="showPage('page-landing')" class="hover:text-emerald-500">Home</button>
+            <button onclick="showPage('page-work')" class="hover:text-emerald-500">Gallery</button>
+            <button onclick="showPage('page-admin')" class="text-slate-500">HQ</button>
+            <button onclick="showPage('page-builder')" class="btn-primary">Build CV</button>
+        </div>
+    </nav>
 
-    <section id="page-landing" class="page-section active">
-        <nav class="px-12 py-8 flex justify-between items-center max-w-[1600px] mx-auto">
-            <div class="flex items-center gap-4">
-                <div class="bg-emerald-500 p-3 rounded-2xl shadow-xl shadow-emerald-500/20"><i class="fas fa-bolt text-slate-900"></i></div>
-                <span class="text-3xl font-black tracking-tighter uppercase italic">Siroh<span class="text-emerald-500">Pro</span></span>
-            </div>
-            <div class="flex items-center gap-10">
-                <button onclick="showPage('page-work')" class="text-[11px] font-black uppercase text-white hover:text-emerald-400">Our Work</button>
-                <button onclick="showPage('page-admin')" class="text-[11px] font-black uppercase text-slate-500 hover:text-emerald-400">HQ</button>
-                <button onclick="showPage('page-builder')" class="bg-emerald-500 text-slate-900 px-8 py-3 rounded-full font-black text-xs uppercase">Get Started</button>
-            </div>
-        </nav>
-
-        <div class="max-w-[1400px] mx-auto px-12 pt-28 text-center">
-            <h1 class="text-7xl md:text-[9rem] font-black mb-8 leading-[0.85] tracking-tighter">THE TOTAL <br><span class="text-emerald-500 italic">TAKEOVER.</span></h1>
-            <p class="text-slate-400 text-xl max-w-2xl mx-auto mb-16 italic">Build the CV. Pass the ATS. Benchmark your Salary. Script the Interview.</p>
-            
-            <div class="flex flex-wrap justify-center gap-6 mb-20">
-                <div class="glass-card px-8 py-4 rounded-full flex items-center gap-3 border-emerald-500/30">
-                    <i class="fas fa-check-circle text-emerald-500"></i>
-                    <span class="text-xs font-black uppercase tracking-widest">98% ATS Score</span>
-                </div>
-                <div class="glass-card px-8 py-4 rounded-full flex items-center gap-3 border-blue-500/30">
-                    <i class="fas fa-chart-line text-blue-500"></i>
-                    <span class="text-xs font-black uppercase tracking-widest">Live Salary Data</span>
-                </div>
-                <div class="glass-card px-8 py-4 rounded-full flex items-center gap-3 border-purple-500/30">
-                    <i class="fas fa-link text-purple-500"></i>
-                    <span class="text-xs font-black uppercase tracking-widest">LinkedIn Hooks</span>
+    <section id="page-landing" class="page-section active max-w-7xl mx-auto px-6">
+        <div class="grid lg:grid-cols-2 gap-16 items-center pt-12">
+            <div>
+                <h1 class="text-5xl lg:text-7xl font-extrabold leading-[1.1] mb-6">
+                    Engineering <br><span class="text-emerald-500 italic">Top 1%</span> Careers.
+                </h1>
+                <p class="text-slate-400 text-lg mb-10 max-w-lg leading-relaxed">
+                    Automated CV design, real-time salary benchmarking, and AI-powered networking hooks for the Kenyan professional.
+                </p>
+                <div class="flex gap-4">
+                    <button onclick="showPage('page-builder')" class="btn-primary px-10 py-5 text-sm">Get Started</button>
+                    <button onclick="showPage('page-work')" class="bg-slate-900 border border-slate-700 px-10 py-5 rounded-xl text-sm font-bold uppercase">View Samples</button>
                 </div>
             </div>
-
-            <button onclick="showPage('page-builder')" class="bg-emerald-500 text-slate-950 px-16 py-8 rounded-3xl font-black text-2xl uppercase shadow-2xl shadow-emerald-500/30 hover:scale-105 transition-all">Launch Career Engine</button>
+            <div class="glass-card p-8 rotate-2">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="size-3 bg-red-500 rounded-full"></div>
+                    <div class="size-3 bg-yellow-500 rounded-full"></div>
+                    <div class="size-3 bg-green-500 rounded-full"></div>
+                </div>
+                <div class="space-y-4">
+                    <div class="h-4 bg-slate-800 rounded w-3/4"></div>
+                    <div class="h-4 bg-slate-800 rounded w-1/2"></div>
+                    <div class="h-20 bg-emerald-500/10 rounded border border-emerald-500/20"></div>
+                </div>
+            </div>
         </div>
     </section>
 
-    <section id="page-builder" class="page-section">
-        <nav class="sticky top-0 z-50 glass-card border-b border-slate-800 px-8 py-5 flex justify-between items-center">
-            <button onclick="showPage('page-landing')" class="text-slate-500 font-black text-[10px] uppercase">Back</button>
-            <div class="flex items-center gap-3">
-                <button onclick="toggleXray()" class="bg-purple-900/50 border border-purple-500/50 text-purple-400 px-4 py-2 rounded-xl text-[9px] font-black uppercase">ATS X-Ray</button>
-                <button onclick="generateNetworkingHook()" class="bg-blue-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase">LinkedIn Hook</button>
-                <button onclick="generateInterviewPrep()" class="bg-emerald-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase">Interview Prep</button>
-                <button onclick="window.print()" class="bg-white text-slate-900 px-4 py-2 rounded-xl text-[9px] font-black uppercase">Print</button>
-            </div>
-        </nav>
-
-        <main class="max-w-[1800px] mx-auto grid lg:grid-cols-2 gap-12 px-8 pt-12">
-            <div class="space-y-6 pb-24">
-                <div class="glass-card p-8 rounded-[2.5rem] border-l-4 border-emerald-500 animate-pulse">
-                    <p class="text-slate-500 text-[9px] font-black uppercase mb-1">Live Salary Insight (Kenya)</p>
-                    <p id="salary-view" class="text-3xl font-black italic tracking-tighter">KES 0.00</p>
+    <section id="page-builder" class="page-section max-w-[1600px] mx-auto px-6">
+        <div class="grid lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-5 space-y-6">
+                <div class="glass-card p-6 border-l-4 border-emerald-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Est. Monthly Salary</p>
+                        <p id="salary-view" class="text-2xl font-extrabold text-white italic">KES 0.00</p>
+                    </div>
+                    <i class="fas fa-chart-line text-emerald-500 text-xl opacity-50"></i>
                 </div>
 
-                <div class="glass-card p-10 rounded-[3rem]">
-                    <h2 class="text-emerald-500 font-black text-[10px] uppercase mb-8 tracking-[0.3em]">Core Parameters</h2>
-                    <input type="text" id="userName" placeholder="Full Name" oninput="renderCV()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm mb-4 outline-none focus:border-emerald-500">
-                    <input type="text" id="userLoc" placeholder="Nairobi, KE" oninput="renderCV()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm mb-4 outline-none focus:border-emerald-500">
-                    <textarea id="targetJob" onblur="updateSalary()" class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-sm mb-4 outline-none h-32" placeholder="Paste the Job Description here. Amanda uses this to calculate salary and networking hooks..."></textarea>
+                <div class="glass-card p-8 space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-emerald-500 mb-4">Input Parameters</h3>
+                    <input type="text" id="userName" placeholder="Full Name" oninput="renderCV()" class="w-full bg-slate-900/50 border border-slate-800 rounded-lg p-4 text-sm focus:border-emerald-500 outline-none transition">
+                    <input type="text" id="userLoc" placeholder="Nairobi, Kenya" oninput="renderCV()" class="w-full bg-slate-900/50 border border-slate-800 rounded-lg p-4 text-sm focus:border-emerald-500 outline-none transition">
+                    <textarea id="targetJob" onblur="updateSalary()" class="w-full bg-slate-900/50 border border-slate-800 rounded-xl p-4 text-sm h-32 outline-none focus:border-emerald-500" placeholder="Paste Job Description..."></textarea>
                     
-                    <div class="grid grid-cols-3 gap-2 mb-6">
-                        <button onclick="applyStyle('modern')" class="bg-slate-900 py-3 rounded-lg text-[8px] font-black uppercase hover:bg-emerald-500 hover:text-slate-900 transition">Modern</button>
-                        <button onclick="applyStyle('executive')" class="bg-slate-900 py-3 rounded-lg text-[8px] font-black uppercase hover:bg-emerald-500 hover:text-slate-900 transition">Executive</button>
-                        <button onclick="applyStyle('tech')" class="bg-slate-900 py-3 rounded-lg text-[8px] font-black uppercase hover:bg-emerald-500 hover:text-slate-900 transition">Tech</button>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="applyStyle('modern')" class="bg-slate-800 py-3 rounded-lg text-[9px] font-bold uppercase hover:bg-slate-700">Modern</button>
+                        <button onclick="applyStyle('executive')" class="bg-slate-800 py-3 rounded-lg text-[9px] font-bold uppercase hover:bg-slate-700">Executive</button>
+                        <button onclick="applyStyle('tech')" class="bg-slate-800 py-3 rounded-lg text-[9px] font-bold uppercase hover:bg-slate-700">Tech</button>
                     </div>
 
-                    <button onclick="addExp(true); trackAction('SIMULATION_RUN')" class="w-full bg-emerald-500 text-slate-900 py-5 rounded-2xl font-black uppercase text-xs shadow-xl shadow-emerald-500/20">Simulate Elite Experience</button>
+                    <div class="flex gap-2">
+                        <button onclick="addExp(true)" class="btn-primary w-full">AI Experience Generator</button>
+                        <button onclick="generateNetworkingHook()" class="bg-blue-600 px-4 rounded-lg"><i class="fab fa-linkedin"></i></button>
+                    </div>
                 </div>
+
                 <div id="expList" class="space-y-4"></div>
             </div>
 
-            <div class="relative"><div class="sticky top-28"><div id="cv-preview" class="cv-paper style-modern"></div></div></div>
-        </main>
-    </section>
-
-    <section id="page-admin" class="page-section">
-        <div class="p-12 max-w-[1600px] mx-auto">
-            <h2 class="text-4xl font-black uppercase italic text-emerald-500 mb-12">System Control</h2>
-            <div class="grid md:grid-cols-4 gap-8 mb-12">
-                <div class="glass-card p-10 rounded-[2.5rem]">
-                    <p class="text-slate-500 text-[9px] font-black uppercase">Global Leads</p>
-                    <p class="text-5xl font-black" id="admin-lead-count">5,910</p>
-                </div>
-                <div class="glass-card p-10 rounded-[2.5rem] bg-blue-600">
-                    <p class="text-white text-[9px] font-black uppercase">Networking Hooks</p>
-                    <p class="text-5xl font-black text-white">1,204</p>
+            <div class="lg:col-span-7">
+                <div class="sticky top-6">
+                    <div class="flex justify-between items-center mb-4 px-4">
+                        <div class="flex gap-2">
+                            <button onclick="toggleXray()" class="text-[9px] font-bold uppercase text-slate-500 border border-slate-800 px-3 py-1 rounded">ATS X-Ray</button>
+                        </div>
+                        <button onclick="triggerMpesa()" class="btn-primary bg-white text-slate-950 px-6">Download PDF</button>
+                    </div>
+                    <div class="cv-container">
+                        <div id="cv-preview" class="cv-paper style-modern"></div>
+                    </div>
                 </div>
             </div>
-            <div id="admin-logs" class="glass-card rounded-[3rem] p-12 text-[10px] font-mono text-slate-500 h-64 overflow-y-auto"></div>
         </div>
     </section>
+
+    <div id="mpesa-modal" class="overlay-modal fixed inset-0 z-[10000] hidden bg-slate-950/95 backdrop-blur-md items-center justify-center p-6 no-print">
+        <div class="glass-card p-10 max-w-md w-full text-center border-emerald-500/20">
+            <div class="bg-[#3fb04e] w-fit mx-auto px-6 py-2 rounded-lg text-white font-bold mb-6">M-PESA</div>
+            <h2 class="text-xl font-bold mb-2">Checkout</h2>
+            <p class="text-slate-400 text-sm mb-6">A fee of <span class="text-white font-bold">KES 250</span> is required to unlock the premium export.</p>
+            <input type="text" id="mpesa-phone" placeholder="07XX XXX XXX" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl text-center mb-4 outline-none">
+            <button onclick="simulateMpesa()" class="btn-primary w-full bg-[#3fb04e] text-white py-4">Pay & Download</button>
+            <button onclick="document.getElementById('mpesa-modal').classList.add('hidden')" class="mt-4 text-[10px] text-slate-500 uppercase font-bold">Cancel</button>
+        </div>
+    </div>
+
+    <div id="amanda-portal" class="fixed bottom-8 right-8 z-[10000] no-print">
+        <div id="chat-window" class="hidden flex-col glass-card w-80 mb-4 overflow-hidden border-emerald-500/20 shadow-2xl">
+            <div class="bg-emerald-500 p-4 flex justify-between items-center">
+                <span class="text-slate-950 font-bold text-xs uppercase italic">Amanda Strategist</span>
+                <button onclick="toggleAmanda()"><i class="fas fa-times text-slate-950"></i></button>
+            </div>
+            <div id="amanda-msgs" class="h-64 overflow-y-auto p-4 space-y-3 text-[11px] bg-slate-950/50">
+                <div class="bg-emerald-500/10 p-3 rounded-lg border border-emerald-500/20">I'm tracking your profile. Should we run a salary audit or a networking script?</div>
+            </div>
+            <div class="p-3 bg-slate-900 flex gap-2">
+                <input type="text" id="amanda-in" class="bg-slate-950 text-[10px] p-2 rounded flex-1 outline-none" placeholder="Type command...">
+                <button onclick="askAmanda()" class="bg-emerald-500 text-slate-950 px-3 rounded font-bold text-[10px]">Go</button>
+            </div>
+        </div>
+        <button onclick="toggleAmanda()" class="size-16 rounded-2xl bg-emerald-500 text-slate-950 shadow-2xl shadow-emerald-500/30 flex items-center justify-center text-2xl hover:scale-110 transition active:scale-95">
+            <i class="fas fa-headset"></i>
+        </button>
+    </div>
 
     <script>
         const API_KEY = "AIzaSyDlByDWoNQsNb0pGZKQTxqPeFkhQWr6Eqw";
 
-        function showPage(pageId) {
-            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
+        function showPage(id) {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
             window.scrollTo(0,0);
         }
 
-        async function callAI(prompt) {
+        function toggleAmanda() {
+            const w = document.getElementById('chat-window');
+            w.classList.toggle('hidden');
+            w.classList.toggle('flex');
+        }
+
+        async function callAI(p) {
             const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                 method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                body: JSON.stringify({ contents: [{ parts: [{ text: p }] }] })
             });
             const data = await res.json();
             return data.candidates[0].content.parts[0].text.trim();
         }
 
-        // SALARY LOGIC
         async function updateSalary() {
             const jd = document.getElementById('targetJob').value;
-            const view = document.getElementById('salary-view');
             if(jd.length < 50) return;
-            view.innerHTML = `<span class="text-sm">Calculating...</span>`;
-            const estimate = await callAI(`Analyze this Job Description: ${jd}. Predict the monthly salary range in Kenyan Shillings (KES) for the Nairobi market. Reply ONLY with the range, e.g. KES 150k - 200k`);
-            view.innerText = estimate;
-        }
-
-        // NETWORKING HOOK LOGIC
-        async function generateNetworkingHook() {
-            const jd = document.getElementById('targetJob').value;
-            const modal = document.getElementById('hook-modal');
-            const content = document.getElementById('hook-content');
-            if(!jd) { alert("Paste a Job Description first!"); return; }
-            
-            modal.style.display = 'flex';
-            content.innerText = "Amanda is drafting your connection strategy...";
-            const hook = await callAI(`Based on this JD: ${jd}, write a short, high-impact LinkedIn message to a Hiring Manager. Use a professional yet bold tone. Mention the candidate's desire to solve a specific problem mentioned in the JD.`);
-            content.innerText = hook;
-            trackAction('LINKEDIN_HOOK_GENERATED');
-        }
-
-        function copyHook() {
-            const text = document.getElementById('hook-content').innerText;
-            navigator.clipboard.writeText(text);
-            alert("Copied to clipboard! Ready for LinkedIn.");
-        }
-
-        // ATS X-RAY LOGIC
-        let xrayMode = false;
-        function toggleXray() {
-            xrayMode = !xrayMode;
-            const preview = document.getElementById('cv-preview');
-            if(xrayMode) {
-                preview.style.background = "#020617";
-                preview.style.color = "#10b981";
-                preview.style.fontFamily = "monospace";
-                preview.innerHTML = `<div style="padding:40px;">[ROBOT_VISION_ACTIVE]<br>[PARSING_USER_DATA...]<br><br>${preview.innerText.replace(/\n/g, '<br>> ')}</div>`;
-            } else {
-                preview.style.background = "white";
-                preview.style.color = "#1e293b";
-                renderCV();
-            }
+            document.getElementById('salary-view').innerText = "Analyzing...";
+            const r = await callAI(`Analyze this JD: ${jd}. Provide only a monthly salary range in KES for Nairobi.`);
+            document.getElementById('salary-view').innerText = r;
         }
 
         function applyStyle(s) {
             document.getElementById('cv-preview').className = 'cv-paper style-' + s;
-            trackAction('STYLE_SWAP: ' + s);
+            renderCV();
         }
 
-        async function addExp(isSim) {
+        function triggerMpesa() {
+            document.getElementById('mpesa-modal').classList.remove('hidden');
+            document.getElementById('mpesa-modal').classList.add('flex');
+        }
+
+        function simulateMpesa() {
+            const btn = event.target;
+            btn.innerText = "Processing STK Push...";
+            setTimeout(() => {
+                alert("Payment Confirmed! PDF Unlocked.");
+                document.getElementById('mpesa-modal').classList.add('hidden');
+                window.print();
+                btn.innerText = "Pay & Download";
+            }, 2500);
+        }
+
+        async function addExp() {
             const loc = document.getElementById('userLoc').value || "Nairobi";
-            const val = await callAI(`Write one professional CV work entry for a lead role in ${loc}. Use hard numbers/metrics.`);
+            const val = await callAI(`Generate 1 professional CV experience entry for a high-level role in ${loc}. Use metric-driven bullet points.`);
             const id = "exp-" + Date.now();
-            document.getElementById('expList').insertAdjacentHTML('afterbegin', `<div id="${id}" class="glass-card p-6 rounded-[2rem] relative"><textarea oninput="renderCV()" class="w-full bg-transparent text-slate-400 text-xs min-h-[120px] outline-none">${val}</textarea><button onclick="this.parentElement.remove(); renderCV();" class="absolute top-4 right-4 text-slate-700">×</button></div>`);
+            document.getElementById('expList').insertAdjacentHTML('afterbegin', `<div id="${id}" class="glass-card p-4 relative"><textarea oninput="renderCV()" class="w-full bg-transparent text-slate-400 text-xs min-h-[100px] outline-none">${val}</textarea><button onclick="this.parentElement.remove(); renderCV();" class="absolute top-2 right-2 text-slate-700">×</button></div>`);
             renderCV();
         }
 
         function renderCV() {
-            const name = document.getElementById('userName').value || 'YOUR NAME';
-            const loc = document.getElementById('userLoc').value || 'Nairobi, Kenya';
-            let content = "";
-            document.querySelectorAll('#expList textarea').forEach(t => content += `<div style="margin-bottom:15px; font-size:10pt; white-space:pre-line;">${t.value}</div>`);
-            document.getElementById('cv-preview').innerHTML = `<div style="text-align:center; border-bottom:2px solid currentColor; padding-bottom:15px; margin-bottom:20px;"><h1 style="margin:0; font-size:24pt;">${name.toUpperCase()}</h1><p style="font-size:11pt; font-weight:700;">${loc}</p></div><h3 style="text-transform:uppercase; font-size:11pt; margin-bottom:15px; border-bottom:1px solid #ccc;">Experience</h3>${content}`;
+            const n = document.getElementById('userName').value || 'PROFESSIONAL NAME';
+            const l = document.getElementById('userLoc').value || 'CITY, COUNTRY';
+            let c = "";
+            document.querySelectorAll('#expList textarea').forEach(t => c += `<div style="margin-bottom:12pt; font-size:10pt; line-height:1.4; white-space:pre-line;">${t.value}</div>`);
+            document.getElementById('cv-preview').innerHTML = `<div style="text-align:center; border-bottom:1px solid #000; padding-bottom:10pt; margin-bottom:15pt;"><h1 style="margin:0; font-size:22pt; font-weight:800;">${n.toUpperCase()}</h1><p style="font-size:10pt; font-weight:600; color:#444;">${l}</p></div><h2 style="font-size:11pt; text-transform:uppercase; border-bottom:1px solid #eee; margin-bottom:10pt;">Experience</h2>${c}`;
         }
 
-        function trackAction(a) {
-            const logs = document.getElementById('admin-logs');
-            logs.innerHTML = `<div class="mb-1">[${new Date().toLocaleTimeString()}] ${a}</div>` + logs.innerHTML;
+        async function generateNetworkingHook() {
+            const jd = document.getElementById('targetJob').value;
+            if(!jd) return alert("Paste a JD first.");
+            const r = await callAI(`Write a short LinkedIn message for this role: ${jd}. High impact.`);
+            alert("LinkedIn Strategy Generated:\n\n" + r);
+        }
+
+        let xray = false;
+        function toggleXray() {
+            xray = !xray;
+            const p = document.getElementById('cv-preview');
+            if(xray) {
+                p.style.background = "#020617"; p.style.color = "#10b981"; p.style.fontFamily = "monospace";
+                p.innerHTML = `<div style="padding:20px;">[ATS_SCAN_MODE]<br><br>${p.innerText.replace(/\n/g, '<br>> ')}</div>`;
+            } else {
+                p.style.background = "white"; p.style.color = "#1e293b"; p.style.fontFamily = "inherit"; renderCV();
+            }
         }
     </script>
 </body>
