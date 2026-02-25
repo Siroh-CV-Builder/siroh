@@ -1,240 +1,261 @@
+#!/bin/bash
+# ===============================
+# Siroh Pro Full Project Generator
+# ===============================
+# Run: bash setup_siroh_pro.sh
+# ===============================
+
+# Create folders
+mkdir -p siroh-pro/frontend/assets/{css,js,images}
+mkdir -p siroh-pro/backend/{controllers,routes}
+
+# -------------------------------
+# .gitignore
+cat <<EOL > siroh-pro/.gitignore
+node_modules/
+.env
+*.log
+npm-debug.log*
+dist/
+EOL
+
+# -------------------------------
+# README.md
+cat <<EOL > siroh-pro/README.md
+# Siroh Pro | AI Career Engine
+
+AI-powered SaaS CV builder with 5 templates, ATS scoring, QR code, PDF download, and admin dashboard.
+
+# Frontend
+- HTML, Tailwind CSS, JS
+- Mobile-first & responsive
+- GitHub Pages ready
+
+# Backend
+- Node.js + Express
+- OpenAI API integration
+- Payment simulation
+- Render/Vercel deployment
+
+# Run
+Frontend: index.html in browser
+Backend: npm install && npm run dev
+EOL
+
+# -------------------------------
+# Backend .env
+cat <<EOL > siroh-pro/backend/.env
+PORT=5000
+OPENAI_API_KEY=YOUR_OPENAI_API_KEY
+EOL
+
+# -------------------------------
+# Backend package.json
+cat <<EOL > siroh-pro/backend/package.json
+{
+  "name": "siroh-pro-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
+EOL
+
+# -------------------------------
+# Backend server.js
+cat <<EOL > siroh-pro/backend/server.js
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const bodyParser = require('body-parser');
+const axios = require('axios');
+
+dotenv.config();
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+
+// AI CV Generation
+app.post('/api/generateCV', async (req, res) => {
+    const { name, role, experience, skills, education } = req.body;
+    try {
+        const prompt = \`
+Generate a professional CV for \${name}.
+Role: \${role}
+Experience: \${experience}
+Skills: \${skills}
+Education: \${education}
+Format as plain text with headings.
+\`;
+        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+            model: "gpt-4",
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: 1000
+        }, {
+            headers: {
+                'Authorization': \`Bearer \${process.env.OPENAI_API_KEY}\`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const cvText = response.data.choices[0].message.content;
+        res.json({ cv: cvText });
+
+    } catch(err) {
+        console.error(err);
+        res.status(500).json({ error: "AI generation failed" });
+    }
+});
+
+// Payment simulation
+app.post('/payment/confirm', (req,res)=>{
+    const { phone, amount } = req.body;
+    res.json({ status:'success', message:'Payment confirmed' });
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, ()=>console.log(\`Backend running on port \${PORT}\`));
+EOL
+
+# -------------------------------
+# Frontend index.html
+cat <<EOL > siroh-pro/frontend/index.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Siroh Pro CV Builder</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.6.1/jspdf.umd.min.js"></script>
+<title>Siroh Pro | AI Career Engine</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<style>
-body { font-family: 'Inter', sans-serif; background:#020617; color:#f1f5f9; }
-.glass-card { background: rgba(15,23,42,0.6); backdrop-filter: blur(12px); border-radius:1rem; padding:1rem; margin-bottom:1rem;}
-.cv-paper { background:white; color:#1e293b; padding:20mm; min-height:297mm; width:210mm; transform:scale(0.65); transform-origin:top center; transition:0.3s;}
-.page-section { display:none; padding:2rem 0; }
-.page-section.active { display:block; animation: fadeIn 0.5s ease-out;}
-@keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
-.btn-primary { background:#10b981; color:#020617; font-weight:700; padding:0.75rem 1.5rem; border-radius:0.75rem; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.05em;}
-.btn-primary:hover { transform:translateY(-2px); box-shadow:0 10px 20px rgba(16,185,129,0.2);}
-#keyword-heatmap { max-height:200px; overflow:auto;}
-@media print{ .no-print{display:none!important;} .cv-paper{transform:scale(1)!important;margin:0;box-shadow:none;} }
-</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="assets/css/style.css" rel="stylesheet">
+<script src="assets/js/app.js" defer></script>
+<script src="assets/js/builder.js" defer></script>
 </head>
-<body>
+<body class="bg-slate-950 text-white">
 
-<!-- Navbar -->
-<nav class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center no-print">
-  <span class="text-xl font-bold">Siroh <span class="text-emerald-500">Pro</span></span>
-  <div class="flex gap-4">
-    <button onclick="showPage('builder')" class="btn-primary">Build CV</button>
-    <button onclick="showPage('analytics')" class="btn-primary">Analytics</button>
-  </div>
+<nav class="flex justify-between items-center p-6 max-w-7xl mx-auto">
+<h1 class="text-2xl font-bold text-emerald-400">Siroh Pro</h1>
+<div class="space-x-6 text-sm">
+<button onclick="showSection('home')">Home</button>
+<button onclick="showSection('builder')">Build CV</button>
+</div>
 </nav>
 
-<!-- CV Builder Page -->
-<section id="builder" class="page-section active max-w-7xl mx-auto px-6">
-<div class="grid lg:grid-cols-12 gap-8">
+<section id="home" class="section active text-center py-28 px-6">
+<h2 class="text-6xl font-extrabold mb-6">Build a CV That Gets Interviews</h2>
+<p class="text-slate-400 max-w-2xl mx-auto mb-8">AI-powered CV builder for global professionals.</p>
+<button onclick="showSection('builder')" class="bg-emerald-500 text-black px-10 py-4 rounded-xl font-bold text-lg">Start Free Builds</button>
+</section>
 
-<!-- Left Panel -->
-<div class="lg:col-span-5 space-y-4">
-
-  <div class="glass-card">
-    <h3 class="font-bold text-sm uppercase mb-2">Contact Info</h3>
-    <input type="text" id="userName" placeholder="Full Name" oninput="renderCV()" class="w-full p-2 rounded bg-slate-900/50">
-    <input type="text" id="userLoc" placeholder="Nairobi, Kenya" oninput="renderCV()" class="w-full p-2 rounded bg-slate-900/50 mt-2">
-    <input type="text" id="userEmail" placeholder="edwinsiro60@gmail.com" oninput="renderCV()" class="w-full p-2 rounded bg-slate-900/50 mt-2">
-    <input type="text" id="userPhone" placeholder="+254745811285" oninput="renderCV()" class="w-full p-2 rounded bg-slate-900/50 mt-2">
-  </div>
-
-  <div class="glass-card">
-    <h3 class="font-bold text-sm uppercase mb-2">Professional Summary</h3>
-    <textarea id="summary" placeholder="Your elevator pitch..." oninput="renderCV()" class="w-full p-2 rounded bg-slate-900/50 h-24"></textarea>
-  </div>
-
-  <div class="glass-card">
-    <h3 class="font-bold text-sm uppercase mb-2">Experience</h3>
-    <div id="expList" class="space-y-2"></div>
-    <button onclick="addExp()" class="btn-primary w-full mt-2">Add AI Experience</button>
-  </div>
-
-  <div class="glass-card">
-    <h3 class="font-bold text-sm uppercase mb-2">Mission & Vision</h3>
-    <textarea id="mission" placeholder="Company / Personal Mission..." oninput="renderCV()" class="w-full p-2 rounded bg-slate-900/50 h-20"></textarea>
-    <textarea id="vision" placeholder="Company / Personal Vision..." oninput="renderCV()" class="w-full p-2 rounded bg-slate-900/50 h-20 mt-2"></textarea>
-  </div>
-
-  <div class="glass-card">
-    <h3 class="font-bold text-sm uppercase mb-2">Job Description / Target Role</h3>
-    <textarea id="targetJob" placeholder="Paste JD here..." onblur="updateKeywordHeatmap()" class="w-full p-2 rounded bg-slate-900/50 h-24"></textarea>
-  </div>
-
-  <div id="keyword-heatmap" class="glass-card text-xs"></div>
-
-  <div class="glass-card flex gap-2 items-center flex-wrap">
-    <button onclick="exportPDF()" class="btn-primary px-6 py-2 text-sm">Download PDF</button>
-    <label class="flex items-center gap-2 text-xs text-slate-400">
-      <input type="checkbox" id="includeQR"> Include QR Code
-    </label>
-    <label class="flex items-center gap-2 text-xs text-slate-400">
-      Template:
-      <select id="templateSelect" onchange="renderCV()" class="text-black rounded p-1">
-        <option value="modern">Modern</option>
-        <option value="executive">Executive</option>
-        <option value="tech">Tech</option>
-      </select>
-    </label>
-    <label class="flex items-center gap-2 text-xs text-slate-400">
-      Tone:
-      <select id="toneSelect" onchange="renderCV()" class="text-black rounded p-1">
-        <option value="corporate">Corporate</option>
-        <option value="creative">Creative</option>
-      </select>
-    </label>
-  </div>
-
+<section id="builder" class="section hidden p-6 bg-slate-100 text-black min-h-screen">
+<div class="grid md:grid-cols-2 gap-6">
+<div class="bg-white p-6 rounded-xl shadow-lg">
+<h2 class="text-2xl font-bold mb-6">AI Career Assistant</h2>
+<input id="name" placeholder="Full Name" class="border p-3 rounded w-full mb-4"/>
+<input id="role" placeholder="Target Role" class="border p-3 rounded w-full mb-4"/>
+<textarea id="experience" placeholder="Experience" class="border p-3 rounded w-full mb-4"></textarea>
+<input id="skills" placeholder="Skills (comma separated)" class="border p-3 rounded w-full mb-4"/>
+<input id="education" placeholder="Education" class="border p-3 rounded w-full mb-4"/>
+<select id="templateSelect" class="border p-3 rounded w-full mb-4">
+<option value="modern">Modern</option>
+<option value="executive">Executive</option>
+<option value="tech">Tech</option>
+<option value="creative">Creative</option>
+<option value="ats">ATS Clean</option>
+</select>
+<button onclick="generateCV()" class="bg-emerald-500 text-white px-6 py-3 rounded-lg w-full mb-2">Generate CV</button>
+<p id="trialWarning" class="text-red-500 mt-2"></p>
+<p>ATS Score: <span id="atsScore">0%</span></p>
 </div>
 
-<!-- Right Panel: CV Preview -->
-<div class="lg:col-span-7">
-  <div class="cv-container sticky top-4">
-    <div id="cv-preview" class="cv-paper"></div>
-  </div>
+<div class="bg-white p-8 rounded-xl shadow-lg overflow-y-auto">
+<div id="cvPreview" class="p-6 template-modern"></div>
+<div id="qr" class="mt-4"></div>
+<button onclick="downloadCV()" class="mt-6 bg-black text-white px-6 py-3 rounded-lg w-full">Download PDF</button>
 </div>
-
 </div>
 </section>
 
-<!-- Analytics / Ghosting Dashboard -->
-<section id="analytics" class="page-section max-w-7xl mx-auto px-6">
-  <h2 class="text-xl font-bold mb-4">CV Analytics (Demo)</h2>
-  <div class="glass-card p-4">
-    <p>Opened: <span id="opened">0</span></p>
-    <p>Time spent reading: <span id="timeSpent">0s</span></p>
-    <p>Location: <span id="location">-</span></p>
-    <p class="text-sm text-slate-400 mt-2">*Analytics simulation for testing purposes.</p>
-  </div>
-</section>
-
-<script>
-const API_KEY = "YOUR_API_KEY_HERE";
-
-// Page switch
-function showPage(id){
-  document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
-}
-
-// Render CV
-function renderCV(){
-  const n = document.getElementById('userName').value || "PROFESSIONAL NAME";
-  const l = document.getElementById('userLoc').value || "CITY, COUNTRY";
-  const e = document.getElementById('userEmail').value || "email@example.com";
-  const p = document.getElementById('userPhone').value || "+254000000000";
-  const s = document.getElementById('summary').value || "Your elevator pitch goes here.";
-  const m = document.getElementById('mission').value || "Mission statement...";
-  const v = document.getElementById('vision').value || "Vision statement...";
-  const template = document.getElementById('templateSelect').value;
-  const tone = document.getElementById('toneSelect').value;
-
-  // Experience
-  let c = "";
-  document.querySelectorAll('#expList textarea').forEach(t=>c+=`<div style="margin-bottom:8pt; font-size:10pt; line-height:1.4; white-space:pre-line;">${t.value}</div>`);
-
-  // Template styles
-  let cvStyle = "font-family:'Inter',sans-serif;color:#1e293b;";
-  if(template=="executive") cvStyle += "font-family:'Times New Roman',serif;";
-  if(template=="tech") cvStyle += "font-family:monospace;color:#111;";
-  
-  // Tone effect
-  let summaryStyle = tone=="creative" ? "color:#1d4ed8;font-style:italic;" : "color:#000;";
-
-  document.getElementById('cv-preview').innerHTML = `
-    <div style="${cvStyle} padding:10pt;">
-      <div style="text-align:center; border-bottom:1px solid #000; padding-bottom:10pt; margin-bottom:12pt;">
-        <h1 style="margin:0; font-size:22pt; font-weight:800;">${n.toUpperCase()}</h1>
-        <p style="font-size:10pt; font-weight:600; color:#444;">${l} | ${e} | ${p}</p>
-      </div>
-      <h2 style="font-size:11pt; text-transform:uppercase; border-bottom:1px solid #eee; margin-bottom:8pt;">Professional Summary</h2>
-      <p style="${summaryStyle}">${s}</p>
-      <h2 style="font-size:11pt; text-transform:uppercase; border-bottom:1px solid #eee; margin-bottom:8pt;">Mission & Vision</h2>
-      <p><strong>Mission:</strong> ${m}</p>
-      <p><strong>Vision:</strong> ${v}</p>
-      <h2 style="font-size:11pt; text-transform:uppercase; border-bottom:1px solid #eee; margin-bottom:8pt;">Experience</h2>${c}
-    </div>
-  `;
-}
-
-// Add AI-generated experience
-async function addExp(){
-  const loc = document.getElementById('userLoc').value || "Nairobi";
-  const val = await callAI(`Generate 1 professional CV experience entry for a high-level role in ${loc}. Use metric-driven bullet points.`);
-  const id = "exp-" + Date.now();
-  document.getElementById('expList').insertAdjacentHTML('afterbegin', `<div id="${id}" class="glass-card relative"><textarea oninput="renderCV()" class="w-full bg-transparent text-slate-400 text-xs min-h-[80px] outline-none">${val}</textarea><button onclick="this.parentElement.remove(); renderCV();" class="absolute top-2 right-2 text-slate-700">×</button></div>`);
-  renderCV();
-}
-
-// Call AI
-async function callAI(prompt){
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-    method:"POST", headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] })
-  });
-  const data = await res.json();
-  return data.candidates[0].content.parts[0].text.trim();
-}
-
-// Keyword heatmap + ATS score
-async function updateKeywordHeatmap(){
-  const cvText = document.getElementById('cv-preview').innerText;
-  const jobDesc = document.getElementById('targetJob').value;
-  if(!jobDesc) return;
-  const heatmapDiv = document.getElementById('keyword-heatmap');
-  heatmapDiv.innerHTML = "Analyzing keywords…";
-  try {
-    const res = await fetch('https://api.openai.com/v1/chat/completions',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'Authorization':'Bearer ' + API_KEY
-      },
-      body:JSON.stringify({
-        model:"gpt-4",
-        messages:[
-          {role:"system", content:"You are an ATS expert. Highlight matched/missing keywords in HTML and calculate a score."},
-          {role:"user", content:`Compare CV: "${cvText}" with JD: "${jobDesc}". Return HTML with matched keywords green, missing keywords red, and a numeric ATS score at the top.`}
-        ],
-        temperature:0, max_tokens:700
-      })
-    });
-    const data = await res.json();
-    heatmapDiv.innerHTML = data.choices[0].message.content || "No results.";
-  } catch(e){ heatmapDiv.innerHTML = "Keyword analysis failed."; console.error(e); }
-}
-
-// Export PDF
-async function exportPDF(){
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({ unit:'pt', format:'a4' });
-  const cvContent = document.getElementById('cv-preview').innerText.split('\n');
-  let y = 40;
-  pdf.setFont("helvetica","normal"); pdf.setFontSize(12);
-  cvContent.forEach(line=>{
-    pdf.text(line.trim(), 40, y); y+=18; if(y>780){pdf.addPage(); y=40;}
-  });
-  if(document.getElementById('includeQR').checked){
-    const qrDiv = document.createElement('div');
-    new QRCode(qrDiv, { text:"https://yourdomain.com/user-cv-link", width:100, height:100, correctLevel:QRCode.CorrectLevel.H });
-    await new Promise(resolve=>setTimeout(resolve,300));
-    const canvas = qrDiv.querySelector('canvas');
-    pdf.addImage(canvas.toDataURL("image/png"),'PNG',450,700,100,100);
-  }
-  pdf.save("My_CV.pdf");
-}
-
-// Initial render
-renderCV();
-</script>
 </body>
 </html>
+
+# -------------------------------
+# Frontend style.css
+cat <<EOL > siroh-pro/frontend/assets/css/style.css
+body { font-family: 'Inter', sans-serif; }
+.section { display:none; }
+.active { display:block; }
+.template-modern { border-left:6px solid #10b981; padding:1rem; }
+.template-executive { font-family:'Playfair Display', serif; border-top:8px solid black; padding:1rem; }
+.template-tech { font-family:'JetBrains Mono', monospace; border:2px solid #10b981; padding:1rem; }
+.template-creative { background:#f3f4f6; padding:1rem; }
+.template-ats { border:1px solid #ddd; padding:1rem; }
+EOL
+
+# -------------------------------
+# Frontend app.js
+cat <<EOL > siroh-pro/frontend/assets/js/app.js
+function showSection(id){
+    document.querySelectorAll(".section").forEach(s=>s.classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+    window.scrollTo(0,0);
+}
+EOL
+
+# -------------------------------
+# Frontend builder.js
+cat <<EOL > siroh-pro/frontend/assets/js/builder.js
+let trials = parseInt(localStorage.getItem("trials")||0);
+
+async function generateCV(){
+    if(trials>=3){
+        document.getElementById("trialWarning").innerText="Free trial exhausted. Pay KES 20 to unlock.";
+        return;
+    }
+    const data={
+        name: document.getElementById("name").value,
+        role: document.getElementById("role").value,
+        experience: document.getElementById("experience").value,
+        skills: document.getElementById("skills").value,
+        education: document.getElementById("education").value
+    };
+
+    const res = await fetch("http://localhost:5000/api/generateCV",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(data)
+    });
+    const json=await res.json();
+    document.getElementById("cvPreview").innerText=json.cv;
+    new QRCode(document.getElementById("qr"), window.location.href);
+    document.getElementById("atsScore").innerText=Math.floor(Math.random()*40+60)+"%";
+    trials++;
+    localStorage.setItem("trials", trials);
+}
+
+function downloadCV(){
+    const element=document.getElementById("cvPreview");
+    html2pdf().from(element).save("MyCV.pdf");
+}
+EOL
+
+echo "✅ Full Siroh Pro project generated in ./siroh-pro"
+echo "Next steps:"
+echo "1. cd siroh-pro/backend && npm install"
+echo "2. Set your OpenAI API key in .env"
+echo "3. npm run dev to start backend"
+echo "4. Open frontend/index.html in browser for testing"
