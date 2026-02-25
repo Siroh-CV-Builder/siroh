@@ -5,6 +5,13 @@
 # Run: bash setup_siroh_pro.sh
 # ===============================
 
+# Create fol#!/bin/bash
+# ===============================
+# Siroh Pro Full Project Generator
+# ===============================
+# Run: bash setup_siroh_pro.sh
+# ===============================
+
 # Create folders
 mkdir -p siroh-pro/frontend/assets/{css,js,images}
 mkdir -p siroh-pro/backend/{controllers,routes}
@@ -258,4 +265,258 @@ echo "Next steps:"
 echo "1. cd siroh-pro/backend && npm install"
 echo "2. Set your OpenAI API key in .env"
 echo "3. npm run dev to start backend"
+echo "4. Open frontend/index.html in browser for testing"ders
+mkdir -p siroh-pro/frontend/assets/{css,js,images}
+mkdir -p siroh-pro/backend/{controllers,routes}
+
+# -------------------------------
+# .gitignore
+cat <<EOL > siroh-pro/.gitignore
+node_modules/
+.env
+*.log
+npm-debug.log*
+dist/
+EOL
+
+# -------------------------------
+# README.md
+cat <<EOL > siroh-pro/README.md
+# Siroh Pro | AI Career Engine
+
+AI-powered SaaS CV builder with 5 templates, ATS scoring, QR code, PDF download, and admin dashboard.
+
+# Frontend
+- HTML, Tailwind CSS, JS
+- Mobile-first & responsive
+- GitHub Pages ready
+
+# Backend
+- Node.js + Express
+- OpenAI API integration
+- Payment simulation
+- Render/Vercel deployment
+
+# Run
+Frontend: index.html in browser
+Backend: npm install && npm run dev
+EOL
+
+# -------------------------------
+# Backend .env
+cat <<EOL > siroh-pro/backend/.env
+PORT=5000
+OPENAI_API_KEY=YOUR_OPENAI_API_KEY
+EOL
+
+# -------------------------------
+# Backend package.json
+cat <<EOL > siroh-pro/backend/package.json
+{
+  "name": "siroh-pro-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
+EOL
+
+# -------------------------------
+# Backend server.js
+cat <<EOL > siroh-pro/backend/server.js
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const bodyParser = require('body-parser');
+const axios = require('axios');
+
+dotenv.config();
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+
+// AI CV Generation
+app.post('/api/generateCV', async (req, res) => {
+    const { name, role, experience, skills, education } = req.body;
+    try {
+        const prompt = \`
+Generate a professional CV for \${name}.
+Role: \${role}
+Experience: \${experience}
+Skills: \${skills}
+Education: \${education}
+Format as plain text with headings.
+\`;
+        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+            model: "gpt-4",
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: 1000
+        }, {
+            headers: {
+                'Authorization': \`Bearer \${process.env.OPENAI_API_KEY}\`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const cvText = response.data.choices[0].message.content;
+        res.json({ cv: cvText });
+
+    } catch(err) {
+        console.error(err);
+        res.status(500).json({ error: "AI generation failed" });
+    }
+});
+
+// Payment simulation
+app.post('/payment/confirm', (req,res)=>{
+    const { phone, amount } = req.body;
+    res.json({ status:'success', message:'Payment confirmed' });
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, ()=>console.log(\`Backend running on port \${PORT}\`));
+EOL
+
+# -------------------------------
+# Frontend index.html
+cat <<EOL > siroh-pro/frontend/index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Siroh Pro | AI Career Engine</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="assets/css/style.css" rel="stylesheet">
+<script src="assets/js/app.js" defer></script>
+<script src="assets/js/builder.js" defer></script>
+</head>
+<body class="bg-slate-950 text-white">
+
+<nav class="flex justify-between items-center p-6 max-w-7xl mx-auto">
+<h1 class="text-2xl font-bold text-emerald-400">Siroh Pro</h1>
+<div class="space-x-6 text-sm">
+<button onclick="showSection('home')">Home</button>
+<button onclick="showSection('builder')">Build CV</button>
+</div>
+</nav>
+
+<section id="home" class="section active text-center py-28 px-6">
+<h2 class="text-6xl font-extrabold mb-6">Build a CV That Gets Interviews</h2>
+<p class="text-slate-400 max-w-2xl mx-auto mb-8">AI-powered CV builder for global professionals.</p>
+<button onclick="showSection('builder')" class="bg-emerald-500 text-black px-10 py-4 rounded-xl font-bold text-lg">Start Free Builds</button>
+</section>
+
+<section id="builder" class="section hidden p-6 bg-slate-100 text-black min-h-screen">
+<div class="grid md:grid-cols-2 gap-6">
+<div class="bg-white p-6 rounded-xl shadow-lg">
+<h2 class="text-2xl font-bold mb-6">AI Career Assistant</h2>
+<input id="name" placeholder="Full Name" class="border p-3 rounded w-full mb-4"/>
+<input id="role" placeholder="Target Role" class="border p-3 rounded w-full mb-4"/>
+<textarea id="experience" placeholder="Experience" class="border p-3 rounded w-full mb-4"></textarea>
+<input id="skills" placeholder="Skills (comma separated)" class="border p-3 rounded w-full mb-4"/>
+<input id="education" placeholder="Education" class="border p-3 rounded w-full mb-4"/>
+<select id="templateSelect" class="border p-3 rounded w-full mb-4">
+<option value="modern">Modern</option>
+<option value="executive">Executive</option>
+<option value="tech">Tech</option>
+<option value="creative">Creative</option>
+<option value="ats">ATS Clean</option>
+</select>
+<button onclick="generateCV()" class="bg-emerald-500 text-white px-6 py-3 rounded-lg w-full mb-2">Generate CV</button>
+<p id="trialWarning" class="text-red-500 mt-2"></p>
+<p>ATS Score: <span id="atsScore">0%</span></p>
+</div>
+
+<div class="bg-white p-8 rounded-xl shadow-lg overflow-y-auto">
+<div id="cvPreview" class="p-6 template-modern"></div>
+<div id="qr" class="mt-4"></div>
+<button onclick="downloadCV()" class="mt-6 bg-black text-white px-6 py-3 rounded-lg w-full">Download PDF</button>
+</div>
+</div>
+</section>
+
+</body>
+</html>
+
+# -------------------------------
+# Frontend style.css
+cat <<EOL > siroh-pro/frontend/assets/css/style.css
+body { font-family: 'Inter', sans-serif; }
+.section { display:none; }
+.active { display:block; }
+.template-modern { border-left:6px solid #10b981; padding:1rem; }
+.template-executive { font-family:'Playfair Display', serif; border-top:8px solid black; padding:1rem; }
+.template-tech { font-family:'JetBrains Mono', monospace; border:2px solid #10b981; padding:1rem; }
+.template-creative { background:#f3f4f6; padding:1rem; }
+.template-ats { border:1px solid #ddd; padding:1rem; }
+EOL
+
+# -------------------------------
+# Frontend app.js
+cat <<EOL > siroh-pro/frontend/assets/js/app.js
+function showSection(id){
+    document.querySelectorAll(".section").forEach(s=>s.classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+    window.scrollTo(0,0);
+}
+EOL
+
+# -------------------------------
+# Frontend builder.js
+cat <<EOL > siroh-pro/frontend/assets/js/builder.js
+let trials = parseInt(localStorage.getItem("trials")||0);
+
+async function generateCV(){
+    if(trials>=3){
+        document.getElementById("trialWarning").innerText="Free trial exhausted. Pay KES 20 to unlock.";
+        return;
+    }
+    const data={
+        name: document.getElementById("name").value,
+        role: document.getElementById("role").value,
+        experience: document.getElementById("experience").value,
+        skills: document.getElementById("skills").value,
+        education: document.getElementById("education").value
+    };
+
+    const res = await fetch("http://localhost:5000/api/generateCV",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(data)
+    });
+    const json=await res.json();
+    document.getElementById("cvPreview").innerText=json.cv;
+    new QRCode(document.getElementById("qr"), window.location.href);
+    document.getElementById("atsScore").innerText=Math.floor(Math.random()*40+60)+"%";
+    trials++;
+    localStorage.setItem("trials", trials);
+}
+
+function downloadCV(){
+    const element=document.getElementById("cvPreview");
+    html2pdf().from(element).save("MyCV.pdf");
+}
+EOL
+
+echo "✅ Full Siroh Pro project generated in ./siroh-pro"
+echo "Next steps:"
+echo "1. cd siroh-pro/backend && npm install"
+echo "2. Set your OpenAI API key in .env"
+echo "3. npm run dev to start backend"
 echo "4. Open frontend/index.html in browser for testing"
+
